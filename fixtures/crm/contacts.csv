@@ -1,0 +1,19 @@
+contact_id,account_id,first_name,last_name,title,seniority,email,linkedin_url,persona,lifecycle_stage
+CON001,ACC001,Jess,Romero,,,jess.romero@northwindlog.com,,,MQL
+CON002,ACC001,Adam,Hale,"Manager, Digital",,adam.hale@northwindlog.com,https://linkedin.com/in/adamhale,,Marketing Engaged
+CON003,ACC002,Tobias,Lang,Ecommerce Lead,,tobias.lang@brightwave.com,,,Pipeline
+CON004,ACC002,Priya,Nair,,,priya.nair@brightwave.com,https://linkedin.com/in/priyanair,,Suspect
+CON005,ACC003,Marcus,Webb,Director,,marcus.webb@meridianhealth.org,https://linkedin.com/in/marcuswebb,,Pipeline
+CON006,ACC003,Lena,Fischer,,,lena.fischer@meridianhealth.org,,,Pipeline
+CON007,ACC004,Sam,Okafor,Founder,,sam@cobalt.io,https://linkedin.com/in/samokafor,,Pipeline
+CON008,ACC004,Dana,Liu,Head of Growth,,dana.liu@cobalt.io,https://linkedin.com/in/danaliu,,Pipeline
+CON009,ACC005,Maya,Chen,VP Growth,VP,maya.chen@vuori.com,https://linkedin.com/in/mayachen,Economic Buyer,Pipeline
+CON010,ACC005,Diego,Ramirez,Director of Lifecycle Marketing,Director,diego.ramirez@vuori.com,https://linkedin.com/in/diegoramirez,Champion,Pipeline
+CON011,ACC005,Priyanka,Shah,Senior Data Analyst,Manager,priyanka.shah@vuori.com,https://linkedin.com/in/priyankashah,Technical Buyer,Pipeline
+CON012,ACC006,Ethan,Brooks,Head of Growth Marketing,Director,ethan.brooks@ramp.com,https://linkedin.com/in/ethanbrooks,Economic Buyer,Pipeline
+CON013,ACC006,Olivia,Park,Marketing Operations Manager,Manager,olivia.park@ramp.com,https://linkedin.com/in/oliviapark,Technical Buyer,Pipeline
+CON014,ACC007,Grace,Kim,Director of Demand Gen,Director,grace.kim@calendly.com,https://linkedin.com/in/gracekim,Champion,Pipeline
+CON015,ACC007,Noah,Bennett,Growth Product Manager,Manager,noah.bennett@calendly.com,https://linkedin.com/in/noahbennett,Influencer,Pipeline
+CON016,ACC007,Sophia,Turner,VP Marketing,VP,sophia.turner@calendly.com,https://linkedin.com/in/sophiaturner,Economic Buyer,Pipeline
+CON017,ACC008,Liam,Foster,Head of Retention,Director,liam.foster@brooklinen.com,https://linkedin.com/in/liamfoster,Champion,Marketing Engaged
+CON018,ACC008,Ava,Morales,Ecommerce Director,Director,ava.morales@brooklinen.com,https://linkedin.com/in/avamorales,Economic Buyer,MQL

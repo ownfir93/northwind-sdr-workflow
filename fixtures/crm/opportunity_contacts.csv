@@ -1,0 +1,14 @@
+opp_id,contact_id,role
+OPP001,CON003,Champion
+OPP002,CON005,Technical Buyer
+OPP002,CON006,Influencer
+OPP003,CON007,Economic Buyer
+OPP003,CON008,Champion
+OPP004,CON009,Economic Buyer
+OPP004,CON010,Champion
+OPP004,CON011,Technical Buyer
+OPP005,CON012,Economic Buyer
+OPP005,CON013,Technical Buyer
+OPP006,CON016,Economic Buyer
+OPP006,CON014,Champion
+OPP006,CON015,Influencer

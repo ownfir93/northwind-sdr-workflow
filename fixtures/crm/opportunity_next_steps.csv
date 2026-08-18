@@ -1,0 +1,17 @@
+opp_id,note,stage,set_by,created_at
+OPP001,Discovery call with the lifecycle and analytics teams,1 - Engage,Frazer,2026-05-22
+OPP001,Scope the audience-activation POC and define success metrics,1 - Engage,Frazer,2026-06-05
+OPP001,Sync the top 3 retention audiences from BigQuery to Braze and Meta in a 2-week pilot and measure retention/LTV lift,1 - Engage,Frazer,2026-06-18
+OPP002,Intro with the data-platform team,2 - Develop,Bob,2026-04-20
+OPP002,Technical scoping of governed activation under HIPAA,3 - Validate,Bob,2026-05-15
+OPP002,"Complete the security/HIPAA review, pilot a governed Salesforce sync on one cohort, then a CIO business-case review",3 - Validate,Bob,2026-06-12
+OPP003,Founder intro on PLG activation,0 - Explore,Meg,2026-06-15
+OPP003,Sync aha-moment product events from BigQuery to HubSpot and launch a PLG nurture in a self-serve trial,0 - Explore,Meg,2026-06-19
+OPP004,Growth team intro and use-case alignment,1 - Engage,Frazer,2026-05-30
+OPP004,Define pilot audiences and success metrics,2 - Develop,Frazer,2026-06-14
+OPP004,Sync top retention and lookalike audiences from Snowflake to Klaviyo and Meta in a 2-week pilot; measure CAC and retention,2 - Develop,Frazer,2026-06-20
+OPP005,Growth marketing intro; warehouse-to-ads use case,1 - Engage,Meg,2026-06-10
+OPP005,Stand up a Snowflake-to-ads sync on one high-intent audience and measure CAC lift with closed-loop reporting,1 - Engage,Meg,2026-06-18
+OPP006,Demand gen intro on PLG activation,1 - Engage,Bob,2026-05-25
+OPP006,Map activation milestones to Marketo nurture,2 - Develop,Bob,2026-06-12
+OPP006,Sync activation events from BigQuery to Marketo and launch a PLG nurture pilot,2 - Develop,Bob,2026-06-19

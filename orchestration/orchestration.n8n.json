@@ -1,0 +1,43 @@
+{
+  "name": "GTM SDR — Orchestration",
+  "_note": "Architecture mirror that showcases the triggers + full pipeline on the n8n canvas. Event Webhook (POST /gtm-orchestrate) + nightly Schedule triggers; Switch routes existing vs new_lead; the ordered skills (Research → Enrich → Account Research → 03 Context → 04 Draft → 05 QA → Write AI Next Email) with the new-lead hygiene branch. Context/Draft/QA/Hygiene are live Claude nodes driven by prompts.<step> in the webhook body. On import, attach an Anthropic credential to the four Claude nodes.",
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    { "name": "Event Trigger (webhook)", "type": "n8n-nodes-base.webhook", "typeVersion": 2.1, "position": [0, 96], "parameters": { "httpMethod": "POST", "path": "gtm-orchestrate", "responseMode": "responseNode", "authentication": "none", "options": {} } },
+    { "name": "Route by path", "type": "n8n-nodes-base.switch", "typeVersion": 3.2, "position": [224, 96], "parameters": { "rules": { "values": [
+      { "outputKey": "existing", "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" }, "conditions": [{ "leftValue": "={{ $json.body.path }}", "operator": { "type": "string", "operation": "equals" }, "rightValue": "existing" }], "combinator": "and" } },
+      { "outputKey": "new_lead", "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" }, "conditions": [{ "leftValue": "={{ $json.body.path }}", "operator": { "type": "string", "operation": "equals" }, "rightValue": "new_lead" }], "combinator": "and" } }
+    ] }, "options": {} } },
+    { "name": "01 Research (verify signals)", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [448, 0], "parameters": {} },
+    { "name": "02b Enrich (deterministic)", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [672, 0], "parameters": {} },
+    { "name": "Account Research (lazy web)", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [896, 0], "parameters": {} },
+    { "name": "03 Build Context", "type": "@n8n/n8n-nodes-langchain.anthropic", "typeVersion": 1, "position": [1120, 0], "parameters": { "resource": "text", "operation": "message", "modelId": { "__rl": true, "mode": "id", "value": "={{ $('Event Trigger (webhook)').item.json.body.prompts.context.model || \"claude-sonnet-4-6\" }}" }, "messages": { "values": [{ "content": "={{ $('Event Trigger (webhook)').item.json.body.prompts.context.user }}", "role": "user" }] }, "simplify": false, "options": { "system": "={{ $('Event Trigger (webhook)').item.json.body.prompts.context.system }}", "maxTokens": 900 } } },
+    { "name": "04 Draft (Opus)", "type": "@n8n/n8n-nodes-langchain.anthropic", "typeVersion": 1, "position": [1344, 0], "parameters": { "resource": "text", "operation": "message", "modelId": { "__rl": true, "mode": "id", "value": "={{ $('Event Trigger (webhook)').item.json.body.prompts.draft.model || \"claude-opus-4-8\" }}" }, "messages": { "values": [{ "content": "={{ $('Event Trigger (webhook)').item.json.body.prompts.draft.user }}", "role": "user" }] }, "simplify": false, "options": { "system": "={{ $('Event Trigger (webhook)').item.json.body.prompts.draft.system }}", "maxTokens": 700 } } },
+    { "name": "05 QA grade", "type": "@n8n/n8n-nodes-langchain.anthropic", "typeVersion": 1, "position": [1568, 0], "parameters": { "resource": "text", "operation": "message", "modelId": { "__rl": true, "mode": "id", "value": "={{ $('Event Trigger (webhook)').item.json.body.prompts.qa.model || \"claude-sonnet-4-6\" }}" }, "messages": { "values": [{ "content": "={{ $('Event Trigger (webhook)').item.json.body.prompts.qa.user }}", "role": "user" }] }, "simplify": false, "options": { "system": "={{ $('Event Trigger (webhook)').item.json.body.prompts.qa.system }}", "maxTokens": 500 } } },
+    { "name": "Write AI Next Email", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [1792, 0], "parameters": {} },
+    { "name": "Respond", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.5, "position": [2016, 0], "parameters": { "respondWith": "json", "responseBody": "={{ { \"context\": $('03 Build Context').item.json, \"draft\": $('04 Draft (Opus)').item.json, \"qa\": $('05 QA grade').item.json } }}" } },
+    { "name": "Ingest to staged", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [448, 192], "parameters": {} },
+    { "name": "02a Hygiene (AI adjudicate)", "type": "@n8n/n8n-nodes-langchain.anthropic", "typeVersion": 1, "position": [672, 192], "parameters": { "resource": "text", "operation": "message", "modelId": { "__rl": true, "mode": "id", "value": "={{ $('Event Trigger (webhook)').item.json.body.prompts.hygiene.model || \"claude-sonnet-4-6\" }}" }, "messages": { "values": [{ "content": "={{ $('Event Trigger (webhook)').item.json.body.prompts.hygiene.user }}", "role": "user" }] }, "simplify": false, "options": { "system": "={{ $('Event Trigger (webhook)').item.json.body.prompts.hygiene.system }}", "maxTokens": 400 } } },
+    { "name": "Promote survivors", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [896, 192], "parameters": {} },
+    { "name": "Respond (new lead)", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.5, "position": [1120, 192], "parameters": { "respondWith": "firstIncomingItem" } },
+    { "name": "Nightly Schedule (cron)", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.3, "position": [0, 416], "parameters": { "rule": { "interval": [{ "field": "days", "daysInterval": 1, "triggerAtHour": 2 }] } } },
+    { "name": "Sweep stale-research accounts", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [224, 416], "parameters": {} },
+    { "name": "Process new leads", "type": "n8n-nodes-base.noOp", "typeVersion": 1, "position": [448, 416], "parameters": {} }
+  ],
+  "connections": {
+    "Event Trigger (webhook)": { "main": [[{ "node": "Route by path", "type": "main", "index": 0 }]] },
+    "Route by path": { "main": [[{ "node": "01 Research (verify signals)", "type": "main", "index": 0 }], [{ "node": "Ingest to staged", "type": "main", "index": 0 }]] },
+    "01 Research (verify signals)": { "main": [[{ "node": "02b Enrich (deterministic)", "type": "main", "index": 0 }]] },
+    "02b Enrich (deterministic)": { "main": [[{ "node": "Account Research (lazy web)", "type": "main", "index": 0 }]] },
+    "Account Research (lazy web)": { "main": [[{ "node": "03 Build Context", "type": "main", "index": 0 }]] },
+    "03 Build Context": { "main": [[{ "node": "04 Draft (Opus)", "type": "main", "index": 0 }]] },
+    "04 Draft (Opus)": { "main": [[{ "node": "05 QA grade", "type": "main", "index": 0 }]] },
+    "05 QA grade": { "main": [[{ "node": "Write AI Next Email", "type": "main", "index": 0 }]] },
+    "Write AI Next Email": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] },
+    "Ingest to staged": { "main": [[{ "node": "02a Hygiene (AI adjudicate)", "type": "main", "index": 0 }]] },
+    "02a Hygiene (AI adjudicate)": { "main": [[{ "node": "Promote survivors", "type": "main", "index": 0 }]] },
+    "Promote survivors": { "main": [[{ "node": "Respond (new lead)", "type": "main", "index": 0 }]] },
+    "Nightly Schedule (cron)": { "main": [[{ "node": "Sweep stale-research accounts", "type": "main", "index": 0 }]] },
+    "Sweep stale-research accounts": { "main": [[{ "node": "Process new leads", "type": "main", "index": 0 }]] }
+  }
+}

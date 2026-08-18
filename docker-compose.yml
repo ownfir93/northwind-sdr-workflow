@@ -1,0 +1,31 @@
+# Offline-dev fallback ONLY. The documented path is managed Postgres (Railway in prod,
+# Railway/Neon for local dev) + n8n Cloud — see README. This file lets a reviewer who
+# prefers Docker spin up a local Postgres without signing up for anything.
+#
+#   docker compose up -d
+#   # then set DATABASE_URL="postgresql://gtm:gtm@localhost:5432/gtm?schema=public"
+#
+# n8n is intentionally NOT here: orchestration runs on n8n Cloud (ownfir.app.n8n.cloud),
+# keeping the workflow tool a managed sibling and the logic in git.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gtm-sdr-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gtm
+      POSTGRES_PASSWORD: gtm
+      POSTGRES_DB: gtm
+    ports:
+      - "5432:5432"
+    volumes:
+      - gtm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gtm -d gtm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  gtm_pgdata:

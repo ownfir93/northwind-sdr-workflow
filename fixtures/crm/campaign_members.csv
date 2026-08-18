@@ -1,0 +1,8 @@
+contact_id,campaign_name,engagement_type,engagement_date,status
+CON001,State of Composable CDP 2026,content_download,2026-05-20,engaged
+CON001,Modern Data Stack Conf 2026,event_attended,2026-05-14,engaged
+CON003,Warehouse-Native Marketing Webinar,webinar,2026-04-22,engaged
+CON004,AI Decisioning Product Newsletter,email_open,2026-05-30,engaged
+CON005,Reverse ETL ROI Guide,content_download,2026-06-01,engaged
+CON007,PLG Activation Newsletter,email_open,2026-06-10,engaged
+CON008,Data Activation Nurture,email_click,2026-06-05,engaged

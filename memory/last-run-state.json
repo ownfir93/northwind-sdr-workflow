@@ -1,0 +1,14 @@
+{
+  "_comment": "Lets the workflow answer 'what's new since last run' per contact/account. The nightly batch and rep-activity triggers read/update this. In the demo it is seeded once; Phase 2 updates it on each run.",
+  "lastSweepAt": "2026-06-21T02:00:00Z",
+  "contacts": {
+    "CON005": { "lastRunAt": "2026-06-20T14:10:00Z", "lastTrigger": "campaign_touch", "lastEmailSubject": "Meridian Health Systems — building on what you read" },
+    "CON009": { "lastRunAt": "2026-06-19T09:30:00Z", "lastTrigger": "opp_stage_changed", "lastEmailSubject": "Vuori — next step as things move forward" }
+  },
+  "accounts": {
+    "ACC005": { "researchedAt": null, "note": "research-empty — nightly sweep will pick this up" },
+    "ACC006": { "researchedAt": null },
+    "ACC007": { "researchedAt": null },
+    "ACC008": { "researchedAt": null }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "_comment": "Canonical field definitions shared across skills so prompts and code agree on meaning.",
+  "account": {
+    "dataStack": "Current warehouse + activation stack (e.g. 'Snowflake + Klaviyo + Meta'). Primary Northwind ICP signal.",
+    "signalNotes": "Short freshest buying signal (funding, hiring, migration, pain).",
+    "accountResearch": "Deep, web-sourced research narrative. LAZY: populated once if empty (researchedAt null) by the Account Research agent.",
+    "accountAiContext": "Continually-updated current-state synthesis. Refreshed EVERY run by 03-build-context.",
+    "researchedAt": "Timestamp Account Research last ran. null => research gate fires."
+  },
+  "contact": {
+    "lifecycleStage": "Controlled vocab: Suspect | Marketing Engaged | MQL | Working | Pipeline | Closed Won | Nurture | Disqualified. Owned by marketing ops (CRM). INVARIANT: a contact on an opportunity (an OpportunityContact row) is always Pipeline. Being at an account that has an opp does not make the contact Pipeline.",
+    "persona": "Economic Buyer | Champion | Technical Buyer | Influencer. Drives angle + pillar.",
+    "seniority": "C-Level | VP | Senior Leadership | Director | Manager | Individual Contributor. Drives tone + length.",
+    "recentRoleChange": "Enrichment-only signal; the highest-value opener when present and not 'same role'.",
+    "status": "active | staged | merged. Hygiene promotes staged -> active (or merged).",
+    "source": "crm | clay.",
+    "aiNextEmail": "The rep-facing artifact the workflow writes (subject + body). Outreach builds the in-sequence email from it; a rep sends.",
+    "aiNextEmailAt": "When aiNextEmail was last written."
+  },
+  "opportunity": {
+    "stage": "CRM opp stage string (e.g. '1 - Engage', '2 - Develop', '3 - Validate').",
+    "nextSteps": "CURRENT agreed/recommended next move.",
+    "nextStepHistory": "Append-only OpportunityNextStep log (note, stage, setBy, createdAt). Drives opp_next_step trigger.",
+    "painPoints": "The problems driving the deal.",
+    "competitor": "Incumbent / competing options."
+  },
+  "run": {
+    "triggerType": "Which event fired the run.",
+    "path": "existing | new_lead.",
+    "outcome": "draft_ready | routed_to_review | discarded | failed.",
+    "durationMs": "Workflow latency (measured)."
+  },
+  "hygieneEvent": {
+    "matchType": "exact | fuzzy | none.",
+    "decision": "auto_merge | needs_review | create_new.",
+    "confidence": "0..1 (AI adjudication tier)."
+  }
+}

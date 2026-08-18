@@ -1,0 +1,53 @@
+{
+  "name": "GTM SDR — Generation Runner",
+  "nodes": [
+    {
+      "id": "517c3623-7833-4836-9f13-535e404a1b97",
+      "name": "Generate Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "webhookId": "90a92151-1cab-424f-bd6b-32a5c5e73bb5",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gtm-generate",
+        "responseMode": "responseNode",
+        "authentication": "none",
+        "options": {}
+      }
+    },
+    {
+      "id": "615c82eb-5143-47e7-b51c-87b8ffb91941",
+      "name": "Claude",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [224, 0],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": { "__rl": true, "mode": "id", "value": "={{ $json.body.model || \"claude-sonnet-4-6\" }}" },
+        "messages": { "values": [{ "content": "={{ $json.body.user }}", "role": "user" }] },
+        "simplify": false,
+        "options": {
+          "system": "={{ $json.body.system }}",
+          "maxTokens": "={{ $json.body.maxTokens || 1500 }}",
+          "webSearch": "={{ $json.body.webSearch || false }}"
+        }
+      },
+      "_note": "On import, attach your Anthropic API credential (type anthropicApi) to this node."
+    },
+    {
+      "id": "5a0682a2-b8ce-46a1-b6ae-e4e43868cb67",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [448, 0],
+      "parameters": { "respondWith": "firstIncomingItem" }
+    }
+  ],
+  "connections": {
+    "Generate Webhook": { "main": [[{ "node": "Claude", "type": "main", "index": 0 }]] },
+    "Claude": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

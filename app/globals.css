@@ -1,0 +1,20 @@
+/* Minimal global reset. MUI CssBaseline + theme own the rest. */
+html,
+body {
+  max-width: 100vw;
+  /* `clip` prevents horizontal scroll WITHOUT creating a scroll container; `hidden` here breaks the
+     NavBar's position: sticky. */
+  overflow-x: clip;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+code {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  background: #f0f1f3;
+  padding: 1px 5px;
+  border-radius: 4px;
+}

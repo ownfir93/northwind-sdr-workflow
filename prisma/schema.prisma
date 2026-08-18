@@ -1,0 +1,188 @@
+// Prisma schema — GTM SDR Research demo
+// Models the "CRM" (accounts, contacts, opportunities, campaign members),
+// plus the reporting layer (runs, hygiene events) that proves the system works.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ContactStatus {
+  active   // existing, reconciled record
+  staged   // newly ingested (e.g. from Clay), pending hygiene
+  merged   // deduped into another contact (the survivor)
+}
+
+enum ContactSource {
+  crm      // already in the database
+  clay     // surfaced by the discovery/enrichment provider
+}
+
+enum WorkflowPath {
+  existing // enrich an existing contact
+  new_lead // ingest + reconcile a newly found contact
+}
+
+enum MatchType {
+  exact    // deterministic (email)
+  fuzzy    // name + company similarity, AI-adjudicated
+  none     // no match -> net new
+}
+
+enum HygieneDecision {
+  auto_merge
+  needs_review
+  create_new
+}
+
+enum RunOutcome {
+  draft_ready
+  routed_to_review
+  discarded
+  failed
+}
+
+model Account {
+  id            String        @id          // ACC001
+  name          String
+  industry      String?
+  employeeSize  String?
+  location      String?
+  dataStack       String?   // current warehouse + activation stack (Northwind ICP signal)
+  signalNotes     String?
+  // Bifurcated account context:
+  accountResearch String?   // deep, web-sourced research. Lazy: populated once if empty (n8n -> Claude research agent).
+  accountAiContext String?  // continually-updated current-state synthesis (refreshed every run).
+  researchedAt    DateTime? // null => Account Research not yet run; gates the research step.
+  contacts        Contact[]
+  opportunities   Opportunity[]
+}
+
+model Contact {
+  id               String           @id        // CON001 / FND001 (promoted records keep a canonical id)
+  account          Account          @relation(fields: [accountId], references: [id])
+  accountId        String
+  firstName        String
+  lastName         String
+  title            String?
+  seniority        String?
+  email            String?
+  linkedinUrl      String?
+  persona          String?
+  lifecycleStage   String?
+  headline         String?
+  recentRoleChange String?
+  tenureYears      Float?
+  status           ContactStatus    @default(active)
+  source           ContactSource    @default(crm)
+  discoveredDate   DateTime?
+  enrichmentSource String?
+  // The rep-facing artifact the workflow writes. Outreach builds the in-sequence
+  // email from this field; a rep reviews and sends (never auto-sent).
+  aiNextEmail      String?
+  aiNextEmailAt    DateTime?
+  // dedup self-relation: a merged record points at its survivor
+  mergedInto       Contact?         @relation("Merge", fields: [mergedIntoId], references: [id])
+  mergedIntoId     String?
+  mergedFrom       Contact[]        @relation("Merge")
+  campaignMembers  CampaignMember[]
+  opportunities    OpportunityContact[]
+  runs             Run[]
+  hygieneEvents    HygieneEvent[]
+  createdAt        DateTime         @default(now())
+}
+
+model Opportunity {
+  id          String    @id        // OPP001
+  account     Account   @relation(fields: [accountId], references: [id])
+  accountId   String
+  name        String
+  stage       String
+  amount      Int?
+  closeDate   DateTime?
+  daysInStage Int?
+  owner       String?
+  context     String?   // deal narrative — why now, sponsor, momentum
+  painPoints  String?   // the problems driving the deal
+  competitor  String?   // incumbent / competing options
+  nextSteps   String?   // the CURRENT agreed/recommended next move
+  nextStepHistory OpportunityNextStep[]
+  contacts    OpportunityContact[]
+}
+
+// Contact-level opportunity association (opportunity contact roles). A contact is on a deal only if it has a
+// row here — decoupled from lifecycle stage. So an MQL contact can be the Technical Buyer on an open opp
+// while the Economic Buyer (Pipeline) drives it; a contact at an account with an opp is NOT on the deal
+// unless listed here.
+model OpportunityContact {
+  id            Int         @id @default(autoincrement())
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  contact       Contact     @relation(fields: [contactId], references: [id])
+  contactId     String
+  role          String? // Economic Buyer | Champion | Technical Buyer | Influencer
+}
+
+// Append-only log of how an opportunity's next step changed over time.
+// Drives the "Opportunity updated" trigger: context can reflect what moved.
+model OpportunityNextStep {
+  id            Int         @id @default(autoincrement())
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  note          String      // the next step as set at this point
+  stage         String?     // opp stage when it was set
+  setBy         String?     // owner / rep
+  createdAt     DateTime    // when this next step was set
+}
+
+model CampaignMember {
+  id             Int      @id @default(autoincrement())
+  contact        Contact  @relation(fields: [contactId], references: [id])
+  contactId      String
+  campaignName   String
+  engagementType String
+  engagementDate DateTime
+  status         String
+}
+
+// ---------- Reporting / measurement layer ----------
+
+model Run {
+  id                Int          @id @default(autoincrement())
+  contact           Contact?     @relation(fields: [contactId], references: [id])
+  contactId         String?
+  label             String?      // display name for non-CRM runs (CSV upload / Clay batch), e.g. "Ana Lee · Notion"
+  sessionId         String?      // per-visitor session (cookie) — scopes Analytics to each user's own work
+  triggerType       String       // new_gong_call | inbound_form | campaign_touch | opp_created | clay_found | csv_upload | manual
+  path              WorkflowPath
+  contextGenerated  Boolean      @default(false)
+  enrichmentApplied Boolean      @default(false)
+  draftGenerated    Boolean      @default(false)
+  researchRan       Boolean      @default(false) // a live web research ran during this run
+  qaPassed          Boolean?
+  qaReasons         String?      // JSON array of QA failure reasons (why a draft was flagged)
+  outcome           RunOutcome?
+  durationMs        Int?
+  // The generated AI email, persisted so it can be reviewed in Analytics.
+  emailSubject      String?
+  emailBody         String?
+  emailCitations    String?      // JSON array of citation strings
+  createdAt         DateTime     @default(now())
+}
+
+model HygieneEvent {
+  id               Int             @id @default(autoincrement())
+  foundId          String          // FND001 — the inbound record evaluated
+  matchType        MatchType
+  decision         HygieneDecision
+  confidence       Float?          // 0..1
+  matchedContact   Contact?        @relation(fields: [matchedContactId], references: [id])
+  matchedContactId String?
+  reason           String?         // "email exact match" or the AI adjudication rationale
+  sessionId        String?         // per-visitor session (cookie) — scopes Analytics
+  createdAt        DateTime        @default(now())
+}
