@@ -267,6 +267,8 @@ export default function WorkflowVisualizer() {
         topology is what the app runtime executes.
       </Typography>
 
+      <ContextLayerComparison />
+
       {limitMessage && (
         <Alert severity="info" sx={{ mb: 2 }}>
           {limitMessage}
@@ -395,6 +397,132 @@ export default function WorkflowVisualizer() {
         )}
       </Dialog>
     </Box>
+  );
+}
+
+function ContextLayerComparison() {
+  const [grounded, setGrounded] = useState(false);
+
+  return (
+    <Card
+      variant="outlined"
+      sx={{
+        mb: 2,
+        borderColor: grounded ? "#7c3aed" : "#cbd5e1",
+        bgcolor: grounded ? "#f5f3ff" : "#ffffff",
+      }}
+    >
+      <CardContent>
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={2}
+          alignItems={{ xs: "stretch", md: "flex-start" }}
+          justifyContent="space-between"
+        >
+          <Box sx={{ maxWidth: 680 }}>
+            <Chip
+              size="small"
+              label="Before / after"
+              sx={{
+                mb: 1,
+                bgcolor: grounded ? "#ede9fe" : "#f1f5f9",
+                color: grounded ? "#5b21b6" : "#475569",
+                fontWeight: 800,
+              }}
+            />
+            <Typography variant="h6" fontWeight={850} sx={{ letterSpacing: "-0.02em" }}>
+              Same CRM record. Different answer.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              The graph below shows the full workflow. This is the part that matters first:
+              the model either guesses from raw field names, or it reads the rules that explain
+              what those fields mean.
+            </Typography>
+          </Box>
+
+          <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
+            <Button
+              size="small"
+              variant={!grounded ? "contained" : "outlined"}
+              color={!grounded ? "inherit" : "primary"}
+              onClick={() => setGrounded(false)}
+              disableElevation
+            >
+              Raw CRM only
+            </Button>
+            <Button
+              size="small"
+              variant={grounded ? "contained" : "outlined"}
+              onClick={() => setGrounded(true)}
+              disableElevation
+            >
+              Context layer on
+            </Button>
+          </Stack>
+        </Stack>
+
+        <Box
+          sx={{
+            mt: 2,
+            display: "grid",
+            gap: 1.5,
+            gridTemplateColumns: { xs: "1fr", lg: "0.9fr 1.1fr" },
+          }}
+        >
+          <Box
+            component="pre"
+            sx={{
+              m: 0,
+              p: 1.5,
+              borderRadius: 2,
+              bgcolor: "#0f172a",
+              color: "#dbeafe",
+              fontSize: 12,
+              lineHeight: 1.55,
+              whiteSpace: "pre-wrap",
+              overflowWrap: "anywhere",
+            }}
+          >
+{`Question: Is Cascade Freight at risk?
+
+account_health: "Green"
+renewal_risk_score: 82
+last_executive_touch_days: 118
+support_escalations_open: 3
+next_step: "Follow up after renewal meeting"
+next_step_status: "planned"`}
+          </Box>
+
+          <Box
+            sx={{
+              p: 1.5,
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: grounded ? "#c4b5fd" : "#e2e8f0",
+              bgcolor: "#fff",
+            }}
+          >
+            <Typography
+              variant="caption"
+              fontWeight={800}
+              sx={{ color: grounded ? "#5b21b6" : "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}
+            >
+              {grounded ? "Grounded answer" : "Ungrounded answer"}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, whiteSpace: "pre-wrap", lineHeight: 1.7 }}>
+              {grounded
+                ? "Yes — Cascade Freight needs attention. The Green account_health field is deprecated and shouldn't be used for renewal risk. The authoritative risk score is 82, and the context layer says anything above 75 is high risk. The open escalations and 118 days since executive touch strengthen that read. The planned next step is not evidence that the meeting happened."
+                : "Cascade Freight does not appear to be at high renewal risk. The account_health field is Green, which suggests the customer is in good standing. There are some support escalations, but the overall account status suggests the team does not need to prioritize intervention yet."}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1.25 }}>
+          Toggle it once, then run the workflow. The live steps show how the app loads only the relevant
+          guidance instead of stuffing every rule into every prompt.
+        </Typography>
+      </CardContent>
+    </Card>
   );
 }
 
