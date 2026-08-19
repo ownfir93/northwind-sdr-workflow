@@ -62,6 +62,7 @@ export default function WorkflowVisualizer() {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [limitMessage, setLimitMessage] = useState<string | null>(null);
+  const [limitDialogOpen, setLimitDialogOpen] = useState(false);
 
   const triggerDef = VISUALIZER_TRIGGERS.find((t) => t.value === trigger)!;
   const isBatch = trigger === "clay_found";
@@ -153,11 +154,12 @@ export default function WorkflowVisualizer() {
       markerEnd: { type: MarkerType.ArrowClosed, color: "#f59e0b" },
     } : e)));
 
-  async function run() {
+  async function run(emailOverride?: string) {
     if (isScheduled) return;
     reset();
     setLimitMessage(null);
     setRunning(true);
+    const runEmail = emailOverride ?? email;
     await delay(100);
     const needsResearch = !isBatch && !isFound && selectedContact ? !selectedContact.accountResearched : false;
     const { nodeIds, edgeIds, path } = activePathFor(trigger, needsResearch);
@@ -169,7 +171,7 @@ export default function WorkflowVisualizer() {
         const ingestP = fetch("/api/ingest", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email: runEmail }),
         }).then(async (r) => {
           const json = await r.json().catch(() => ({}));
           if (!r.ok) throw json;
@@ -184,7 +186,10 @@ export default function WorkflowVisualizer() {
         setNodeState(nodeIds[nodeIds.length - 1], "done");
         setStaged((await ingestP).staged ?? []);
       } catch (e: any) {
-        if (e?.emailRequired) setLimitMessage(e.error ?? "Add your email to keep running the live demo.");
+        if (e?.emailRequired) {
+          setLimitMessage(e.error ?? "Add your email to keep running the live demo.");
+          setLimitDialogOpen(true);
+        }
       } finally { setRunning(false); }
       return;
     }
@@ -207,11 +212,14 @@ export default function WorkflowVisualizer() {
 
     const reader = (async () => {
       try {
-        const body = isFound ? { foundId: leadId, triggerType: "new_lead", email } : { contactId: leadId, triggerType: trigger, email };
+        const body = isFound ? { foundId: leadId, triggerType: "new_lead", email: runEmail } : { contactId: leadId, triggerType: trigger, email: runEmail };
         const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
         if (!res.ok) {
           const json = await res.json().catch(() => ({}));
-          if (json.emailRequired) setLimitMessage(json.error ?? "Add your email to keep running the live demo.");
+          if (json.emailRequired) {
+            setLimitMessage(json.error ?? "Add your email to keep running the live demo.");
+            setLimitDialogOpen(true);
+          }
           return;
         }
         const rd = res.body!.getReader();
@@ -269,24 +277,9 @@ export default function WorkflowVisualizer() {
 
       <ContextLayerComparison />
 
-      {limitMessage && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          {limitMessage}
-        </Alert>
-      )}
-
       <Card variant="outlined" sx={{ mb: 2 }}>
         <CardContent sx={{ py: 2 }}>
           <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
-            <TextField
-              size="small"
-              label="Email for more runs"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              sx={{ minWidth: 260 }}
-              helperText="First 10 runs are free. After that, this signs you up for GTM Josh updates."
-            />
             <FormControl size="small" sx={{ minWidth: 250 }}>
               <InputLabel>Event trigger</InputLabel>
               <Select value={trigger} label="Event trigger" onChange={(e) => { setTrigger(e.target.value); reset(); }}>
@@ -310,7 +303,7 @@ export default function WorkflowVisualizer() {
             )}
             {isBatch && <Chip color="warning" variant="outlined" label="runs the whole found_contacts batch" />}
 
-            <Button variant="contained" onClick={run} disabled={running || isScheduled || (showLeadSelector && !leadId)}>
+            <Button variant="contained" onClick={() => void run()} disabled={running || isScheduled || (showLeadSelector && !leadId)}>
               {running ? "Running…" : "Run lead through workflow"}
             </Button>
             <Button variant="text" onClick={resetDemo} disabled={running || resetting}>{resetting ? "Resetting…" : "Reset demo"}</Button>
@@ -396,6 +389,20 @@ export default function WorkflowVisualizer() {
           </>
         )}
       </Dialog>
+
+      <EmailLimitDialog
+        open={limitDialogOpen}
+        email={email}
+        message={limitMessage}
+        running={running}
+        onEmailChange={setEmail}
+        onClose={() => setLimitDialogOpen(false)}
+        onSubmit={(value) => {
+          setEmail(value);
+          setLimitDialogOpen(false);
+          void run(value);
+        }}
+      />
     </Box>
   );
 }
@@ -523,6 +530,73 @@ next_step_status: "planned"`}
         </Typography>
       </CardContent>
     </Card>
+  );
+}
+
+function EmailLimitDialog({
+  open,
+  email,
+  message,
+  running,
+  onEmailChange,
+  onClose,
+  onSubmit,
+}: {
+  open: boolean;
+  email: string;
+  message: string | null;
+  running: boolean;
+  onEmailChange: (value: string) => void;
+  onClose: () => void;
+  onSubmit: (value: string) => void;
+}) {
+  const [touched, setTouched] = useState(false);
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  return (
+    <Dialog open={open} onClose={running ? undefined : onClose} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ pr: 6 }}>
+        Keep running the demo
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          disabled={running}
+          sx={{ position: "absolute", right: 8, top: 8, color: "grey.500" }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {message ?? "You used the free demo runs for this network. Add your email to keep going."}
+        </Typography>
+        <TextField
+          autoFocus
+          fullWidth
+          label="Email"
+          type="email"
+          value={email}
+          onBlur={() => setTouched(true)}
+          onChange={(e) => onEmailChange(e.target.value)}
+          error={touched && !valid}
+          helperText={touched && !valid ? "Use a real email address." : "This also signs you up for GTM Josh updates."}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && valid && !running) onSubmit(email.trim());
+          }}
+        />
+        <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
+          <Button onClick={onClose} disabled={running}>Cancel</Button>
+          <Button
+            variant="contained"
+            disableElevation
+            disabled={!valid || running}
+            onClick={() => onSubmit(email.trim())}
+          >
+            {running ? "Running…" : "Save and run again"}
+          </Button>
+        </Stack>
+      </DialogContent>
+    </Dialog>
   );
 }
 
