@@ -15,6 +15,7 @@ import { orchestrateExisting, orchestrateConfigured } from "@/lib/llm";
 import { contextPrompt, draftPromptOrch, qaPromptOrch } from "@/lib/prompts";
 import { ensureAccountResearched } from "@/lib/research";
 import { getSessionId } from "@/lib/session";
+import { demoLimitErrorResponse, enforceDemoRunLimit } from "@/lib/demoRateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -499,6 +500,8 @@ async function runPipeline(body: any, send: (o: any) => void, sessionId: string)
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const sessionId = await getSessionId();
+  const limit = await enforceDemoRunLimit(req, 1, body.email);
+  if (!limit.ok) return demoLimitErrorResponse(limit);
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {

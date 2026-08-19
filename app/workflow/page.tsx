@@ -7,7 +7,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import {
   Box, Stack, Card, CardContent, Typography, Button, Chip, Alert,
-  Select, MenuItem, FormControl, InputLabel,
+  Select, MenuItem, FormControl, InputLabel, TextField,
   Table, TableHead, TableBody, TableRow, TableCell,
   Dialog, DialogTitle, DialogContent, IconButton,
 } from "@mui/material";
@@ -60,6 +60,8 @@ export default function WorkflowVisualizer() {
   const [staged, setStaged] = useState<any[] | null>(null);
   const [ranNodeIds, setRanNodeIds] = useState<Set<string>>(new Set());
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [limitMessage, setLimitMessage] = useState<string | null>(null);
 
   const triggerDef = VISUALIZER_TRIGGERS.find((t) => t.value === trigger)!;
   const isBatch = trigger === "clay_found";
@@ -154,6 +156,7 @@ export default function WorkflowVisualizer() {
   async function run() {
     if (isScheduled) return;
     reset();
+    setLimitMessage(null);
     setRunning(true);
     await delay(100);
     const needsResearch = !isBatch && !isFound && selectedContact ? !selectedContact.accountResearched : false;
@@ -163,7 +166,15 @@ export default function WorkflowVisualizer() {
     // Clay batch: short path; pace the hygiene node to the real gate call.
     if (isBatch) {
       try {
-        const ingestP = fetch("/api/ingest", { method: "POST" }).then((r) => r.json());
+        const ingestP = fetch("/api/ingest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }).then(async (r) => {
+          const json = await r.json().catch(() => ({}));
+          if (!r.ok) throw json;
+          return json;
+        });
         for (let i = 0; i < nodeIds.length; i++) {
           if (i > 0) { setNodeState(nodeIds[i - 1], "done"); lightEdge(edgeIds[i - 1]); }
           setNodeState(nodeIds[i], "active");
@@ -172,6 +183,8 @@ export default function WorkflowVisualizer() {
         }
         setNodeState(nodeIds[nodeIds.length - 1], "done");
         setStaged((await ingestP).staged ?? []);
+      } catch (e: any) {
+        if (e?.emailRequired) setLimitMessage(e.error ?? "Add your email to keep running the live demo.");
       } finally { setRunning(false); }
       return;
     }
@@ -194,8 +207,13 @@ export default function WorkflowVisualizer() {
 
     const reader = (async () => {
       try {
-        const body = isFound ? { foundId: leadId, triggerType: "new_lead" } : { contactId: leadId, triggerType: trigger };
+        const body = isFound ? { foundId: leadId, triggerType: "new_lead", email } : { contactId: leadId, triggerType: trigger, email };
         const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}));
+          if (json.emailRequired) setLimitMessage(json.error ?? "Add your email to keep running the live demo.");
+          return;
+        }
         const rd = res.body!.getReader();
         const dec = new TextDecoder();
         let buf = "";
@@ -249,9 +267,24 @@ export default function WorkflowVisualizer() {
         topology is what the app runtime executes.
       </Typography>
 
+      {limitMessage && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {limitMessage}
+        </Alert>
+      )}
+
       <Card variant="outlined" sx={{ mb: 2 }}>
         <CardContent sx={{ py: 2 }}>
           <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
+            <TextField
+              size="small"
+              label="Email for more runs"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              sx={{ minWidth: 260 }}
+              helperText="First 10 runs are free. After that, this signs you up for GTM Josh updates."
+            />
             <FormControl size="small" sx={{ minWidth: 250 }}>
               <InputLabel>Event trigger</InputLabel>
               <Select value={trigger} label="Event trigger" onChange={(e) => { setTrigger(e.target.value); reset(); }}>

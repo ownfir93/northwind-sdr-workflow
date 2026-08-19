@@ -3,7 +3,7 @@
 //   POST — run the HYGIENE GATE on the whole batch: exact (deterministic) -> fuzzy (deterministic) ->
 //          AI adjudication (direct model call, ambiguous only). Writes HygieneEvent rows, promotes survivors
 //          (staged -> active | merged). Idempotent: clears prior clay records + HygieneEvents first.
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "csv-parse/sync";
@@ -12,6 +12,7 @@ import { generateJson, llmConfigured } from "@/lib/llm";
 import { hygienePrompt } from "@/lib/prompts";
 import { fuzzyScore, HYGIENE_THRESHOLDS, type MatchInput } from "@/lib/hygiene";
 import { getSessionId } from "@/lib/session";
+import { demoLimitErrorResponse, enforceDemoRunLimit } from "@/lib/demoRateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,11 @@ export async function GET() {
 }
 
 // POST: run the hygiene gate.
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const body = await req.json().catch(() => ({}));
+  const limit = await enforceDemoRunLimit(req, 1, body.email);
+  if (!limit.ok) return demoLimitErrorResponse(limit) as any;
+
   const rows = readFound();
   const sessionId = await getSessionId();
 

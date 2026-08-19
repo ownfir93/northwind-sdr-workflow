@@ -10,6 +10,7 @@ import { contextPrompt, draftPromptOrch, qaPromptOrch, accountResearchPrompt } f
 import { inferPersona, personaInsight, type PersonaInsight } from "@/lib/persona";
 import { prisma } from "@/lib/prisma";
 import { getSessionId } from "@/lib/session";
+import { demoLimitErrorResponse, enforceDemoRunLimit } from "@/lib/demoRateLimit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -140,6 +141,8 @@ export async function POST(req: NextRequest) {
   const rows: Row[] = isClay
     ? await loadClayRows()
     : (Array.isArray(body.rows) ? body.rows : []).map(normalizeRow).filter((r: Row) => r.firstName || r.lastName || r.email || r.company).slice(0, 10);
+  const limit = await enforceDemoRunLimit(req, Math.max(1, rows.length), body.email);
+  if (!limit.ok) return demoLimitErrorResponse(limit);
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

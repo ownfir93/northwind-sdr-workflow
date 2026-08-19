@@ -70,6 +70,7 @@ export default function TryIt() {
   const [statuses, setStatuses] = useState<Record<number, Status>>({});
   const [expanded, setExpanded] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const overLimit = rows.length > 10;
@@ -92,8 +93,14 @@ export default function TryIt() {
       setStatuses(Object.fromEntries(effectiveRows.map((_, i) => [i, "queued"])));
     }
     try {
-      const payload = source === "clay" ? { source: "clay" } : { rows: effectiveRows };
+      const payload = source === "clay" ? { source: "clay", email } : { rows: effectiveRows, email };
       const res = await fetch("/api/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setError(json.error ?? "The live demo couldn't start.");
+        setRunning(false);
+        return;
+      }
       const reader = res.body!.getReader(); const dec = new TextDecoder(); let buf = "";
       while (true) {
         const { done, value } = await reader.read(); if (done) break;
@@ -150,6 +157,16 @@ export default function TryIt() {
               rd.onload = () => loadText(String(rd.result || "")); rd.readAsText(f); e.target.value = "";
             }} />
           </Stack>
+          <TextField
+            size="small"
+            label="Email for more runs"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            helperText="First 10 live runs are free. After that, this signs you up for GTM Josh updates."
+            sx={{ mb: 1.5, maxWidth: 380 }}
+            fullWidth
+          />
           <TextField
             value={text} onChange={(e) => loadText(e.target.value)} multiline minRows={4} fullWidth size="small"
             placeholder={"Paste CSV here, or use Upload / Load sample.\n" + TEMPLATE}
