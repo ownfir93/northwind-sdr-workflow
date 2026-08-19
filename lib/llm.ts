@@ -1,8 +1,8 @@
 // Direct model runtime for the demo. This keeps the same prompt contracts but calls Anthropic
 // from the Next API routes.
-// If ANTHROPIC_API_KEY is absent or a call fails, callers keep their deterministic fallback.
+// If no Anthropic key is present or a call fails, callers keep their deterministic fallback.
 
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+const API_KEY = process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_KEY;
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_VERSION = "2023-06-01";
 const TIMEOUT_MS = 60000;
@@ -31,7 +31,7 @@ export function orchestrateConfigured(): boolean {
 }
 
 export async function orchestrateExisting(prompts: OrchestrateInput): Promise<{ context: any; draft: any; qa: any }> {
-  if (!API_KEY) throw new Error("ANTHROPIC_API_KEY not set");
+  if (!API_KEY) throw new Error("ANTHROPIC_API_KEY or ANTHROPIC_KEY not set");
 
   return withTimeout(ORCH_TIMEOUT_MS, async () => {
     const context = await generateJson(prompts.context);
@@ -54,7 +54,7 @@ export async function orchestrateExisting(prompts: OrchestrateInput): Promise<{ 
 }
 
 export async function generate({ model, system, user, maxTokens = 1500 }: GenInput): Promise<string> {
-  if (!API_KEY) throw new Error("ANTHROPIC_API_KEY not set");
+  if (!API_KEY) throw new Error("ANTHROPIC_API_KEY or ANTHROPIC_KEY not set");
 
   return withTimeout(TIMEOUT_MS, async (signal) => {
     const res = await fetch(ANTHROPIC_URL, {

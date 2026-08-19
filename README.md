@@ -23,7 +23,7 @@ Automated event / scheduled job
 - `coordination/` holds decisions: triggers, hygiene rules, handoffs, QA rubric.
 - `execution/` holds the ordered skills and full prompts.
 - `memory/` holds fallback account research so the demo doesn’t brick when live generation is unavailable.
-- `lib/llm.ts` is the direct model runtime. If `ANTHROPIC_API_KEY` is missing, callers fall back to deterministic demo output.
+- `lib/llm.ts` is the direct model runtime. If `ANTHROPIC_API_KEY` / `ANTHROPIC_KEY` is missing, callers fall back to deterministic demo output.
 
 ## Run locally
 
@@ -31,7 +31,7 @@ Automated event / scheduled job
 npm install
 cp .env.example .env
 # set DATABASE_URL
-# optionally set ANTHROPIC_API_KEY for live model calls
+# optionally set ANTHROPIC_API_KEY or ANTHROPIC_KEY for live model calls
 npm run db:migrate
 npm run db:seed
 npm run dev
@@ -44,13 +44,14 @@ Open `http://localhost:3000/workflow`.
 ```bash
 DATABASE_URL=""
 ANTHROPIC_API_KEY=""
+ANTHROPIC_KEY=""
 
 # Optional if the model aliases need to change.
 ANTHROPIC_CONTEXT_MODEL=""
 ANTHROPIC_DRAFT_MODEL=""
 ```
 
-Without `ANTHROPIC_API_KEY`, the app still runs. It uses deterministic fallback drafts and committed account-research fallbacks.
+Without an Anthropic key, the app still runs. It uses deterministic fallback drafts and committed account-research fallbacks.
 
 ## Demo path
 
