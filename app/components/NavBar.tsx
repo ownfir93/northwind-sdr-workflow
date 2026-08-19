@@ -46,8 +46,8 @@ export default function NavBar() {
             H
           </Box>
           <Typography variant="subtitle1" fontWeight={800} noWrap sx={{ letterSpacing: "-0.01em" }}>
-            Northwind
-            <Box component="span" sx={{ color: "#64748b", fontWeight: 600, display: { xs: "none", sm: "inline" } }}>{"  —  GTM Personalization Hub"}</Box>
+            AI Context Layer Demo
+            <Box component="span" sx={{ color: "#64748b", fontWeight: 600, display: { xs: "none", sm: "inline" } }}>{"  —  GTM Josh scenario"}</Box>
           </Typography>
         </Box>
 

@@ -1,6 +1,6 @@
 # Triggers — what each one means, what it fires, the gate, the next step
 
-Each trigger is an automated event (n8n webhook or the n8n-managed nightly cron) — never a human click.
+Each trigger is an automated event (workflow trigger or the nightly scheduled job) — never a human click.
 Mirrors `lib/workflowGraph.ts` (`VISUALIZER_TRIGGERS`). Columns: who's eligible, what the run does, which
 sequence step it targets.
 
@@ -22,10 +22,10 @@ sequence step it targets.
 | `new_lead` | one lead from the Clay found-contacts table | ingest → hygiene → (survivor) enrich → context → draft |
 | `clay_found` | the whole found batch | ingest all → hygiene each → survivors proceed; dups merged/flagged |
 
-## Scheduled (n8n-managed)
+## Scheduled (scheduled)
 | Trigger | Cadence | Run does |
 |---|---|---|
-| `nightly_batch` | nightly cron in n8n | sweep accounts with `researchedAt` stale/null → Account Research; process the day's new leads; refresh AI Context |
+| `nightly_batch` | nightly cron in app runtime | sweep accounts with `researchedAt` stale/null → Account Research; process the day's new leads; refresh AI Context |
 
 ## The enrichment / research gate
 - Enrich runs every existing/new-lead run (deterministic provider lookup; graceful if empty).

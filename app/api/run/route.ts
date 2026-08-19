@@ -1,9 +1,9 @@
 // app/api/run/route.ts
 // runWorkflow(recordId, trigger) entry point.
-//   Phase 1: STUB. No LLM, no n8n — but the output is GROUNDED in the real record and
+//   Phase 1: STUB. No LLM — but the output is GROUNDED in the real record and
 //            varies by trigger + enrichment, so the demo shows how a trigger changes the
 //            email and how enrichment (before -> after) drives the personalization.
-//   Phase 2: becomes real — calls the n8n Cloud webhook running the ordered skills.
+//   Phase 2: becomes real — calls the model runtime with the ordered prompts.
 import { NextRequest } from "next/server";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -11,7 +11,7 @@ import { parse } from "csv-parse/sync";
 import { prisma } from "@/lib/prisma";
 import { enrich } from "@/lib/enrichment";
 import { sequenceForStage } from "@/lib/stages";
-import { orchestrateExisting, orchestrateConfigured } from "@/lib/n8n";
+import { orchestrateExisting, orchestrateConfigured } from "@/lib/llm";
 import { contextPrompt, draftPromptOrch, qaPromptOrch } from "@/lib/prompts";
 import { ensureAccountResearched } from "@/lib/research";
 import { getSessionId } from "@/lib/session";
@@ -59,7 +59,7 @@ const stripTags = (s: string) =>
     .trim();
 
 // Runs the workflow, emitting per-step progress via send() so the Visualizer animates in sync with
-// real n8n completions. Returns the final payload (or { __error, __status } on a guard failure).
+// real model completions. Returns the final payload (or { __error, __status } on a guard failure).
 async function runPipeline(body: any, send: (o: any) => void, sessionId: string): Promise<any> {
   const startedAt = Date.now();
   const contactId: string | undefined = body.contactId;
@@ -120,11 +120,11 @@ async function runPipeline(body: any, send: (o: any) => void, sessionId: string)
   const oppHistory = oppty?.nextStepHistory ?? [];
   const priorNextStep = oppHistory.length >= 2 ? oppHistory[oppHistory.length - 2].note : null;
 
-  // Account Research gate (lazy): a research-empty account is researched live (n8n -> Claude + web search)
+  // Account Research gate (lazy): a research-empty account is researched live by the model runtime
   // on its first run, then cached. Falls back to memory/account-research/fallbacks.json if the live call fails.
   let researchSource: string = acct.researchedAt ? "cached" : "none";
   if (!isFound) {
-    // Always drive the research step so the Visualizer can mark it done. Only call out to n8n when the
+    // Always drive the research step so the Visualizer can mark it done. Only call the model runtime when the
     // account hasn't been researched yet; otherwise it's a cache hit — mark done immediately as "cached".
     send({ type: "step", node: "acct_research", status: "active" });
     if (!acct.researchedAt) {
@@ -399,11 +399,11 @@ async function runPipeline(body: any, send: (o: any) => void, sessionId: string)
     recordUsed: "",
   };
 
-  // ---------- LIVE generation pass: 03 context -> 04 draft -> 05 QA through n8n -> Claude ----------
+  // ---------- LIVE generation pass: 03 context -> 04 draft -> 05 QA through direct model calls ----------
   // The deterministic payload above is the FALLBACK. Each live step overwrites it on success and silently
   // falls back on any error/timeout, so the demo never bricks and "live when it works" holds.
   // Build the rendered prompts + the record fed to 03 — always, so the Visualizer can show them even on the
-  // templated fallback path. These are exactly what the n8n Orchestration nodes receive.
+  // templated fallback path. These are exactly what the live model calls receive.
   const recordStr = JSON.stringify({
     contact: { name, title: eff.title, seniority: eff.seniority, persona: eff.persona, stage: contact.lifecycleStage, email: contact.email },
     account: { name: acct.name, industry: acct.industry, employeeSize: acct.employeeSize, dataStack: acct.dataStack, signalNotes: acct.signalNotes, accountResearch: val(acct.accountResearch), accountAiContext: val(acct.accountAiContext) },
@@ -419,8 +419,8 @@ async function runPipeline(body: any, send: (o: any) => void, sessionId: string)
   payload.prompts = { context: promptDisplay(cPrompt), draft: promptDisplay(dPrompt), qa: promptDisplay(qPrompt) };
 
   if (orchestrateConfigured()) {
-    // Route the whole chain through the n8n ORCHESTRATION workflow (Switch → 03 → 04 → 05). n8n chains the
-    // node outputs (04 appends 03's, 05 appends 04's); we get back the parsed JSON for each step.
+    // Route the whole chain through direct model calls. The runtime appends the prior step output before
+    // calling the next prompt, so draft and QA stay grounded in the generated context.
     try {
       const out = await orchestrateExisting({ context: cPrompt, draft: dPrompt, qa: qPrompt });
 
@@ -437,7 +437,7 @@ async function runPipeline(body: any, send: (o: any) => void, sessionId: string)
         for (const t of rawBody.match(/\[[^\]]+\]/g) ?? []) if (!cites.includes(t)) cites.push(t);
         payload.email = { subject: String(draft.subject), body: stripTags(rawBody), citations: cites };
         payload.mode = "live";
-        payload.generatedBy = "n8n Orchestration → Claude (03 Sonnet → 04 Opus → 05 Sonnet)";
+        payload.generatedBy = "Direct model runtime (03 Sonnet → 04 Opus → 05 Sonnet)";
       }
 
       const verdict = out.qa;

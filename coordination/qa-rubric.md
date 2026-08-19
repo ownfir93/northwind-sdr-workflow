@@ -7,7 +7,7 @@ review** (never send a failing draft). The grader returns `{ passed, rubric: [{c
 1. **Grounded** — every personalized claim traces to a real signal in the AI Context (CRM / enrichment /
    research / opp / engagement). No invented specifics (named tools, headcounts, dollar amounts, events) that
    aren't in the context.
-2. **Cited** — every personalized claim is grounded in something real in the AI Context (or a fair Northwind
+2. **Cited** — every personalized claim is grounded in something real in the AI Context (or a fair GTM Josh
    value prop), and the draft lists the context facts it leaned on in `citations`. Citations are **free-form**
    — do NOT require any tag format (`[oppty: …]` etc. are not required). A personalized claim with no basis in
    the context → fail. Citations are internal metadata, not prospect-facing — judge ONLY the body for tone.
@@ -24,7 +24,7 @@ review** (never send a failing draft). The grader returns `{ passed, rubric: [{c
 ## Mechanical checks
 - Any square bracket `[ ]` or inline tag in the **body** → fail criterion 3 (the body a rep sends must be
   clean prose; attribution lives in `citations`).
-- Each claim in the **body** must be supportable by a fact in the AI Context (or a fair, general Northwind
+- Each claim in the **body** must be supportable by a fact in the AI Context (or a fair, general GTM Josh
   value prop) — else fail `grounded` / `no-invented-facts`.
 - Do NOT require a citation tag format, a `[pillar: …]`, or any particular citation schema. Citations are the
   model's free-form list of the facts it used. Never fail because of the contents/format of `citations`

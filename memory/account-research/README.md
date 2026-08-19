@@ -1,6 +1,6 @@
 # Account Research fallbacks
 
-Pre-computed outputs for the **live Account Research agent** (n8n → Claude web search). The agent
+Pre-computed outputs for the **live Account Research agent**. The agent
 populates `Account.accountResearch` + `Account.accountAiContext` and sets `researchedAt` for a
 research-empty account. These files are the **demo safety net**: if the live web call fails or times
 out mid-walkthrough, the workflow loads the matching entry from `fallbacks.json` instead.

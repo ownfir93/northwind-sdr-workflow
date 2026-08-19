@@ -1,6 +1,6 @@
 contact_id,title,seniority,headline,recent_role_change,tenure_years,persona,enrichment_source
-CON001,"Senior Director, Revenue Operations",Senior Leadership,"Senior Director, Revenue Operations at Northwind Logistics",Promoted to Sr. Director 3 months ago,4.2,Economic Buyer,LinkedAPI
-CON002,"Senior Manager, Digital Marketing Growth",Manager,"Sr. Manager, Digital Marketing Growth at Northwind Logistics","Same role, 2 yrs",2.1,Champion,LinkedAPI
+CON001,"Senior Director, Revenue Operations",Senior Leadership,"Senior Director, Revenue Operations at Cascade Freight",Promoted to Sr. Director 3 months ago,4.2,Economic Buyer,LinkedAPI
+CON002,"Senior Manager, Digital Marketing Growth",Manager,"Sr. Manager, Digital Marketing Growth at Cascade Freight","Same role, 2 yrs",2.1,Champion,LinkedAPI
 CON003,"Senior Director, Lifecycle Marketing",Director,"Senior Director, Lifecycle Marketing at Brightwave Retail",Joined 6 months ago from a competitor,0.5,Economic Buyer,LinkedAPI
 CON004,VP Marketing,VP,"VP Marketing at Brightwave Retail",Promoted to VP 8 months ago,3.4,Economic Buyer,LinkedAPI
 CON005,"Director, Data Platform",Director,"Director, Data Platform at Meridian Health Systems",Posting publicly about warehouse-native governed data activation,5.0,Technical Buyer,LinkedAPI

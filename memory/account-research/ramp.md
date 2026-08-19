@@ -16,7 +16,7 @@ a fast, data-driven GTM motion.
 Almost certainly a modern warehouse (**Snowflake**) with **dbt** transformations; performance marketing
 into the major ad platforms. *(Inferred — confirm in discovery.)*
 
-## Northwind use case
+## GTM Josh use case
 **Warehouse-to-ads activation + closed-loop**: sync high-intent, product-qualified audiences from the
 warehouse to ad platforms and outbound, then close the loop on conversions back to the warehouse — far
 cleaner than manual CSV exports. Reverse ETL into CRM/outbound for sales as a fast-follow.

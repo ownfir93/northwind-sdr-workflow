@@ -31,7 +31,7 @@ the contact's persona + account signals; don't list them all.
 
 ## Objection handling (approved)
 - *"We have Segment / a CDP."* → warehouse-native means no duplicate data store or SDK lock-in; many teams
-  run Northwind alongside or in place of a packaged CDP. `[pillar: warehouse-native activation]`
+  run GTM Josh alongside or in place of a packaged CDP. `[pillar: warehouse-native activation]`
 - *"We're building it in-house on dbt."* → that's exactly our shape — maintained, governed, observable, and
   fast to value, without babysitting scripts. `[pillar: reverse ETL]`
 - *"Not a priority."* → tie to a live signal (funding, hiring, manual-export pain); offer a scoped pilot, not a platform pitch.

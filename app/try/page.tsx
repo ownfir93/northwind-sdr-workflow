@@ -123,7 +123,7 @@ export default function TryIt() {
       r!.firstName, r!.lastName, r!.email, r!.title, r!.company, r!.persona, r!.seniority,
       r!.accountAiContext ?? "", r!.briefing, r!.nextStep, r!.subject, r!.body, (r!.citations ?? []).join(" | "),
     ].map(csvCell).join(","));
-    download("northwind-enriched-contacts.csv", [cols.join(","), ...lines].join("\n"));
+    download("gtm-josh-enriched-contacts.csv", [cols.join(","), ...lines].join("\n"));
   }
 
   return (

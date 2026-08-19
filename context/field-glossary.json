@@ -1,7 +1,7 @@
 {
   "_comment": "Canonical field definitions shared across skills so prompts and code agree on meaning.",
   "account": {
-    "dataStack": "Current warehouse + activation stack (e.g. 'Snowflake + Klaviyo + Meta'). Primary Northwind ICP signal.",
+    "dataStack": "Current warehouse + activation stack (e.g. 'Snowflake + Klaviyo + Meta'). Primary GTM Josh ICP signal.",
     "signalNotes": "Short freshest buying signal (funding, hiring, migration, pain).",
     "accountResearch": "Deep, web-sourced research narrative. LAZY: populated once if empty (researchedAt null) by the Account Research agent.",
     "accountAiContext": "Continually-updated current-state synthesis. Refreshed EVERY run by 03-build-context.",

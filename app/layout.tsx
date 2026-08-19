@@ -11,8 +11,9 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Northwind — GTM Personalization Hub",
-  description: "Ingest, reconcile, enrich, build context, draft the best next outreach step.",
+  title: "AI Context Layer Demo",
+  description:
+    "A runnable AI context layer demo: load rules, reconcile CRM data, build context, and draft a grounded next step.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

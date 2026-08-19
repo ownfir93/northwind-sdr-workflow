@@ -3,7 +3,7 @@
 Reached ONLY for genuinely ambiguous fuzzy pairs (no exact email match, but a strong-ish same-account
 similarity). Exact matches and clear non-matches are decided deterministically in code before this. The
 orchestrator appends `coordination/hygiene-rules.md` to SYSTEM and POSTs
-`{ model: "claude-sonnet-4-6", system, user, maxTokens }` to the n8n generation runner.
+`{ model: "claude-sonnet-4-6", system, user, maxTokens }` to the model runtime.
 
 ## SYSTEM
 You adjudicate ambiguous duplicate-contact matches for a CRM hygiene gate. You ONLY see genuinely ambiguous

@@ -17,7 +17,7 @@ DTC midmarket. The business is brand- and retention-led with a heavy lifecycle-m
 Likely a cloud warehouse (Snowflake) as the system of record, with **Klaviyo** for lifecycle email/SMS
 and **Meta/Google** for paid social. *(Inferred — to be confirmed in discovery.)*
 
-## Northwind use case
+## GTM Josh use case
 Warehouse-native **audience activation**: build retention, win-back, and lookalike audiences directly
 on the warehouse and sync them to Klaviyo + Meta without the lifecycle team rebuilding lists by hand
 or waiting on data engineering. Strong fit for **AI Decisioning** on next-best-offer once audiences

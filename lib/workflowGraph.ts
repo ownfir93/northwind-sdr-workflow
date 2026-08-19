@@ -1,7 +1,7 @@
-// The workflow as a directed graph: automated event sources -> n8n trigger -> the ordered
+// The workflow as a directed graph: automated event sources -> workflow trigger -> the ordered
 // skills -> the AI Next Email field write -> the outreach/human send layer, with the new-lead
 // (Clay) branch through the hygiene gate and a conditional, lazy Account Research step.
-// Shared by the Workflow Visualizer. In Phase 2 this same topology is what n8n actually runs.
+// Shared by the Workflow Visualizer. This same topology is what the app runtime executes.
 
 export type NodeKind = "event" | "process" | "decision" | "terminal" | "handoff" | "scheduled";
 
@@ -41,11 +41,11 @@ export const WF_NODES: WfNodeDef[] = [
   { id: "ev_rep_sent", kind: "event", title: "Rep sent email", subtitle: "rep activity → refresh", x: COL.events, y: 384, trigger: "rep_sent_email" },
   { id: "ev_rep_connected", kind: "event", title: "Rep connected", subtitle: "rep activity → refresh", x: COL.events, y: 448, trigger: "rep_connected" },
   { id: "ev_clay", kind: "event", title: "Clay discovery", subtitle: "new leads found", x: COL.events, y: 560, trigger: "clay_found", path: "new_lead" },
-  // Scheduled source — n8n-managed cron, visually distinct and spaced clear of the event triggers.
-  { id: "ev_schedule", kind: "scheduled", title: "Nightly schedule", subtitle: "n8n-managed · runs nightly", model: "n8n Cloud", x: COL.events, y: 690, trigger: "nightly_batch" },
+  // Scheduled source — visually distinct and spaced clear of the event triggers.
+  { id: "ev_schedule", kind: "scheduled", title: "Nightly schedule", subtitle: "scheduled job · runs nightly", model: "Scheduler", x: COL.events, y: 690, trigger: "nightly_batch" },
 
   // ---- Orchestration ----
-  { id: "trigger", kind: "process", title: "n8n trigger", subtitle: "webhook / schedule", model: "n8n Cloud", x: COL.trigger, y: 190 },
+  { id: "trigger", kind: "process", title: "Workflow trigger", subtitle: "webhook / schedule", model: "Next API", x: COL.trigger, y: 190 },
 
   // ---- Ordered skills (existing-contact backbone) ----
   { id: "research", kind: "process", title: "01 Research", subtitle: "verify contact signals", model: "Sonnet 4.6", x: COL.research, y: ROW.backbone },

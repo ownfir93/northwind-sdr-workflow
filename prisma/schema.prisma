@@ -52,10 +52,10 @@ model Account {
   industry      String?
   employeeSize  String?
   location      String?
-  dataStack       String?   // current warehouse + activation stack (Northwind ICP signal)
+  dataStack       String?   // current warehouse + activation stack (GTM Josh ICP signal)
   signalNotes     String?
   // Bifurcated account context:
-  accountResearch String?   // deep, web-sourced research. Lazy: populated once if empty (n8n -> Claude research agent).
+  accountResearch String?   // deep, web-sourced research. Lazy: populated once if empty (the model runtime research agent).
   accountAiContext String?  // continually-updated current-state synthesis (refreshed every run).
   researchedAt    DateTime? // null => Account Research not yet run; gates the research step.
   contacts        Contact[]

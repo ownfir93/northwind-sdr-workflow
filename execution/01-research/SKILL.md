@@ -1,6 +1,6 @@
 # 01-research
 
-**Model:** Sonnet 4.6 · **Path:** both · **Calls Claude via n8n:** yes (existing accounts: verify; new web research lives in the Account Research agent)
+**Model:** Sonnet 4.6 · **Path:** both · **Calls Claude via app runtime:** yes (existing accounts: verify; new web research lives in the Account Research agent)
 
 ## Purpose
 Verify the signals we'll ground the email in, and abstain when data is thin. For an already-researched

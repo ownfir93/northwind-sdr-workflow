@@ -1,14 +1,14 @@
 // app/api/ingest/route.ts
 //   GET  — list the inbound found_contacts (answer key stripped). Lightweight; feeds the New-Lead dropdown.
 //   POST — run the HYGIENE GATE on the whole batch: exact (deterministic) -> fuzzy (deterministic) ->
-//          AI adjudication (n8n -> Claude, ambiguous only). Writes HygieneEvent rows, promotes survivors
+//          AI adjudication (direct model call, ambiguous only). Writes HygieneEvent rows, promotes survivors
 //          (staged -> active | merged). Idempotent: clears prior clay records + HygieneEvents first.
 import { NextResponse } from "next/server";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "csv-parse/sync";
 import { prisma } from "@/lib/prisma";
-import { generateJson, n8nConfigured } from "@/lib/n8n";
+import { generateJson, llmConfigured } from "@/lib/llm";
 import { hygienePrompt } from "@/lib/prompts";
 import { fuzzyScore, HYGIENE_THRESHOLDS, type MatchInput } from "@/lib/hygiene";
 import { getSessionId } from "@/lib/session";
@@ -84,7 +84,7 @@ export async function POST() {
         const top = candidates.slice(0, 2).map((x) => ({ id: x.c.id, name: `${x.c.firstName} ${x.c.lastName}`, title: x.c.title, email: x.c.email, score: +x.score.toFixed(2) }));
         const ambiguityNote = `Best fuzzy score ${best.score.toFixed(2)} (≥ ${HYGIENE_THRESHOLDS.ambiguousMin}); same account, name/title/email-localpart similar but no exact email match.`;
         let adjudicated = false;
-        if (n8nConfigured()) {
+        if (llmConfigured()) {
           try {
             const v = await generateJson<any>(hygienePrompt({
               staged: JSON.stringify({ foundId, firstName: r.first_name, lastName: r.last_name, title: r.title, email: r.email, accountId: r.account_id }),

@@ -1,6 +1,6 @@
 # 05-qa-grade
 
-**Model:** Sonnet 4.6 · **Path:** both · **Calls Claude via n8n:** yes
+**Model:** Sonnet 4.6 · **Path:** both · **Calls Claude via app runtime:** yes
 
 ## Purpose
 Grade the draft against `coordination/qa-rubric.md`. Pass → write `aiNextEmail`, route to human review.

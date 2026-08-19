@@ -245,8 +245,8 @@ export default function WorkflowVisualizer() {
         The end-to-end workflow as it actually runs — driven by <b>automated events</b>, not human
         clicks. Pick an event, run a lead through, then <b>click any completed step</b> to see its
         real output. The workflow ends by writing the <b>AI Next Email</b> field; the outreach tool
-        builds the in-sequence email from it and a rep reviews & sends. In Phase 2 this same
-        topology is what n8n Cloud executes.
+        builds the in-sequence email from it and a rep reviews & sends. This same
+        topology is what the app runtime executes.
       </Typography>
 
       <Card variant="outlined" sx={{ mb: 2 }}>
@@ -283,8 +283,8 @@ export default function WorkflowVisualizer() {
 
           {isScheduled && (
             <Alert severity="info" sx={{ mt: 1.5 }}>
-              <b>Scheduled trigger — not runnable here.</b> An <b>n8n-managed</b> nightly schedule (n8n
-              Cloud's own cron) sweeps the day's work — re-research stale accounts, refresh AI Context,
+              <b>Scheduled trigger — not runnable here.</b> A nightly scheduled job sweeps the day's work —
+              re-research stale accounts, refresh AI Context,
               process new leads. Shown as scaffolding for a repeatable process; Phase 2 implements the batch logic.
             </Alert>
           )}
@@ -438,7 +438,7 @@ function StepOutput({ nodeId, ran, result, staged }:
   const c = result.context ?? {};
   switch (nodeId) {
     case "trigger":
-      return <Detail label="n8n trigger">Received the event and started the run on the <b>{result.path}</b> path. n8n only triggers and wires; the logic lives in the repo’s skills.</Detail>;
+      return <Detail label="Workflow trigger">Received the event and started the run on the <b>{result.path}</b> path. The trigger only starts the workflow; the logic lives in the repo’s prompts and rules.</Detail>;
     case "research":
       return (
         <Box>
@@ -466,11 +466,11 @@ function StepOutput({ nodeId, ran, result, staged }:
               <Chip size="small"
                 color={c.researchSource === "live" ? "success" : c.researchSource === "fallback" ? "warning" : "default"}
                 variant={c.researchSource === "live" ? "filled" : "outlined"}
-                label={c.researchSource === "live" ? "● researched live via n8n" : c.researchSource} sx={{ height: 20 }} />
+                label={c.researchSource === "live" ? "● researched live" : c.researchSource} sx={{ height: 20 }} />
             )}
           </Stack>
           <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-            {c.accountResearch ?? "Researched live by the n8n → Claude web-search agent when the account isn't researched yet."}
+            {c.accountResearch ?? "Researched live by the account research step when the account isn't researched yet."}
           </Typography>
         </Box>
       );
@@ -512,7 +512,7 @@ function StepOutput({ nodeId, ran, result, staged }:
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }} flexWrap="wrap" useFlexGap>
             <Typography variant="overline" color="text.secondary">04 Draft — Opus 4.8</Typography>
             <Chip size="small" color={result.mode === "live" ? "success" : "default"} variant={result.mode === "live" ? "filled" : "outlined"}
-              label={result.mode === "live" ? "● live via n8n" : "templated fallback"} sx={{ height: 20 }} />
+              label={result.mode === "live" ? "● live model call" : "templated fallback"} sx={{ height: 20 }} />
           </Stack>
           <Box sx={{ p: 1.5, bgcolor: "#fafafa", borderRadius: 1, border: "1px solid #eee" }}>
             <Typography variant="body2" fontWeight={700}>{result.email?.subject}</Typography>
@@ -639,9 +639,9 @@ function PromptView({ prompt, appendNote }: { prompt: any; appendNote?: string }
 // "See Prompt Used" + "See Context Used" for an AI step (03 / 04 / 05).
 function AiStepExtras({ result, step }: { result: any; step: "context" | "draft" | "qa" }) {
   const appendNote = step === "draft"
-    ? "\n\n(at run time n8n appends the live 03 Build Context output here as the AI Context)"
+    ? "\n\n(at run time the workflow appends the live 03 Build Context output here as the AI Context)"
     : step === "qa"
-    ? "\n\n(at run time n8n appends the live 04 draft + 03 context here)"
+    ? "\n\n(at run time the workflow appends the live 04 draft + 03 context here)"
     : "";
 
   let ctxLabel = "See Context Used";

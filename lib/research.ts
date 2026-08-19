@@ -1,10 +1,10 @@
 // Account Research agent (lazy). Populates accountResearch + accountAiContext + researchedAt for a
-// research-empty account via n8n -> Claude with WEB SEARCH. Falls back to the committed outputs in
+// research-empty account via the model runtime. Falls back to the committed outputs in
 // memory/account-research/fallbacks.json if the live call fails — the demo never bricks.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { prisma } from "@/lib/prisma";
-import { generateJson, n8nConfigured } from "@/lib/n8n";
+import { generateJson, llmConfigured } from "@/lib/llm";
 import { accountResearchPrompt } from "@/lib/prompts";
 
 export type ResearchSource = "cached" | "live" | "fallback" | "unavailable";
@@ -35,7 +35,7 @@ export async function ensureAccountResearched(acct: AcctLite): Promise<{ source:
   let accountAiContext: string | null = null;
   let source: ResearchSource = "unavailable";
 
-  if (n8nConfigured()) {
+  if (llmConfigured()) {
     try {
       const r = await generateJson<any>(accountResearchPrompt({
         account: JSON.stringify({

@@ -17,7 +17,7 @@ self-serve upgrades and a sales-assist motion for teams/enterprise.
 Likely a cloud warehouse (**BigQuery**) with product events, and a marketing automation platform
 (**Marketo** or similar). *(Inferred — confirm in discovery.)*
 
-## Northwind use case
+## GTM Josh use case
 **PLG activation**: sync product-usage milestones (created first event, invited a teammate, hit a
 usage threshold) from the warehouse to the MAP and ads to drive timely nurture, PQL routing to sales,
 and expansion plays — instead of product signals sitting trapped in the warehouse.

@@ -1,6 +1,6 @@
 # 03-build-context
 
-**Model:** Sonnet 4.6 · **Path:** both · **Calls Claude via n8n:** yes
+**Model:** Sonnet 4.6 · **Path:** both · **Calls Claude via app runtime:** yes
 
 ## Purpose
 Produce the **AI Context** object that grounds the draft — a compact, current-state synthesis of the CRM

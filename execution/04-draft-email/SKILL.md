@@ -1,6 +1,6 @@
 # 04-draft-email
 
-**Model:** Opus 4.8 (`claude-opus-4-8`) · **Path:** both · **Calls Claude via n8n:** yes
+**Model:** Opus 4.8 (`claude-opus-4-8`) · **Path:** both · **Calls Claude via app runtime:** yes
 
 ## Purpose
 The rep-facing artifact. Fuse the per-contact AI Context with the reusable rules (brand voice, messaging

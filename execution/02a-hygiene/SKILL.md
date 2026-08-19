@@ -1,6 +1,6 @@
 # 02a-hygiene
 
-**Model:** Sonnet 4.6 (fuzzy adjudication tier only) · **Path:** new-lead only · **Calls Claude via n8n:** yes (Tier 3 only)
+**Model:** Sonnet 4.6 (fuzzy adjudication tier only) · **Path:** new-lead only · **Calls Claude via app runtime:** yes (Tier 3 only)
 
 ## Purpose
 Reconcile a staged inbound (Clay) contact against active CRM contacts before it reaches a rep. The

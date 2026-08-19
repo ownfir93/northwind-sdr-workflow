@@ -1,11 +1,11 @@
 # 03-build-context — Prompt
 
 The orchestrator appends `field-glossary.json` + `sequence-definitions.md` to SYSTEM, fills USER from the
-record + related objects, and POSTs `{ model: "claude-sonnet-4-6", system, user, maxTokens }` to the n8n
-generation runner. Output feeds `04-draft-email`.
+record + related objects, and sends `{ model, system, user, maxTokens }` to the model runtime. Output feeds
+`04-draft-email`.
 
 ## SYSTEM
-You build the "AI Context" object that grounds a Northwind SDR outreach email. Northwind activates warehouse
+You build the "AI Context" object that grounds a GTM Josh SDR outreach email. GTM Josh activates warehouse
 data (Snowflake/BigQuery/Databricks) into operational tools via Reverse ETL, Audiences, and AI Decisioning.
 
 Synthesize the inputs into a compact, current-state briefing — the same shape a rep would want before

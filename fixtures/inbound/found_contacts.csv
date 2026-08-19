@@ -1,7 +1,7 @@
 found_id,account_id,first_name,last_name,title,seniority,email,linkedin_url,persona,source,discovered_date,expected_outcome
-FND001,ACC001,Adam,Hale,"Senior Manager, Digital Marketing Growth",Manager,adam.hale@northwindlog.com,https://linkedin.com/in/adamhale,Champion,clay,2026-06-18,exact_dup_of_CON002
+FND001,ACC001,Adam,Hale,"Senior Manager, Digital Marketing Growth",Manager,adam.hale@cascadefreight.example,https://linkedin.com/in/adamhale,Champion,clay,2026-06-18,exact_dup_of_CON002
 FND002,ACC003,Marc,Webb,"Director, Data Platform",Director,marc.webb@meridian-health.org,https://linkedin.com/in/marcwebb,Technical Buyer,clay,2026-06-18,fuzzy_dup_of_CON005
 FND003,ACC002,Elena,Cruz,Director of Lifecycle Marketing,Director,elena.cruz@brightwave.com,https://linkedin.com/in/elenacruz,Economic Buyer,clay,2026-06-18,new_contact
 FND004,ACC004,Raj,Patel,Head of Data,VP,raj.patel@cobalt.io,https://linkedin.com/in/rajpatel,Technical Buyer,clay,2026-06-18,new_contact
-FND005,ACC001,Jessica,Romero,"Senior Director, Revenue Operations",Senior Leadership,j.romero@northwindlog.com,https://linkedin.com/in/jessicaromero,Economic Buyer,clay,2026-06-18,fuzzy_dup_of_CON001
+FND005,ACC001,Jessica,Romero,"Senior Director, Revenue Operations",Senior Leadership,j.romero@cascadefreight.example,https://linkedin.com/in/jessicaromero,Economic Buyer,clay,2026-06-18,fuzzy_dup_of_CON001
 FND006,ACC002,Tobias,Lang,"Senior Director, Lifecycle Marketing",Director,tobias.lang@brightwave.com,https://linkedin.com/in/tobiaslang,Economic Buyer,clay,2026-06-18,exact_dup_of_CON003

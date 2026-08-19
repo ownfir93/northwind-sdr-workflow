@@ -1,11 +1,11 @@
 // "Try It" / Clay batch — runs brand-new contacts (≤10) through the workflow: live account research (deduped
-// per company) → persona match + persona-specific pains → AI Context → drafted next email, all via n8n.
+// per company) → persona match + persona-specific pains → AI Context → drafted next email.
 // Streams progress per contact over SSE and records each as a Run so it shows in Analytics.
 import { NextRequest } from "next/server";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "csv-parse/sync";
-import { orchestrateConfigured, orchestrateExisting, generateJson, n8nConfigured } from "@/lib/n8n";
+import { orchestrateConfigured, orchestrateExisting, generateJson, llmConfigured } from "@/lib/llm";
 import { contextPrompt, draftPromptOrch, qaPromptOrch, accountResearchPrompt } from "@/lib/prompts";
 import { inferPersona, personaInsight, type PersonaInsight } from "@/lib/persona";
 import { prisma } from "@/lib/prisma";
@@ -25,7 +25,7 @@ const stripTags = (s: string) => (s ?? "").replace(/\s*\[[^\]]*\]/g, "").replace
 type Research = { accountResearch: string | null; accountAiContext: string | null; source: "live" | "unavailable" };
 
 async function researchCompany(company: string): Promise<Research> {
-  if (company && n8nConfigured()) {
+  if (company && llmConfigured()) {
     try {
       const r = await generateJson<any>(accountResearchPrompt({ account: JSON.stringify({ name: company }) }));
       if (r?.accountResearch) {
@@ -43,7 +43,7 @@ function fallbackDraft(r: Row, persona: string, accountAiContext: string | null,
   const hook = accountAiContext ? `saw what ${co} is building` : `for ${persona.toLowerCase()}s at teams like ${co}`;
   return {
     subject: `${co}: activating your warehouse data`,
-    body: `${fn}, ${hook}, ${insight.pains[0]}. Northwind activates data straight from your warehouse into the tools your team already uses — governed, no second copy.\n\nWorth a short call to see how it maps to ${co}?\n\nSDR`,
+    body: `${fn}, ${hook}, ${insight.pains[0]}. GTM Josh activates data straight from your warehouse into the tools your team already uses — governed, no second copy.\n\nWorth a short call to see how it maps to ${co}?\n\nSDR`,
     citations: ["[pillar: warehouse-native activation]"] as string[],
   };
 }

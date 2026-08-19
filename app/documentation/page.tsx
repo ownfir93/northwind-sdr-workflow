@@ -52,11 +52,11 @@ export default function Documentation() {
     <Box sx={{ p: 3, maxWidth: 1100, mx: "auto" }}>
       <Typography variant="h4" fontWeight={800}>Documentation</Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-        How I built this Northwind GTM SDR research &amp; outreach workflow — and the thinking behind each call.
+        How this AI context layer demo works — and the thinking behind each call.
       </Typography>
       <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
-        <Chip size="small" color="success" label="● generation, hygiene & research run live via n8n → Claude" />
-        <Chip size="small" variant="outlined" label="Northwind: composable CDP / Reverse ETL / warehouse-native activation" />
+        <Chip size="small" color="success" label="● generation, hygiene & research run through direct model calls" />
+        <Chip size="small" variant="outlined" label="GTM Josh: composable CDP / Reverse ETL / warehouse-native activation" />
       </Stack>
 
       {/* Demo video removed during the rebrand: the old recording still shows the
@@ -67,7 +67,7 @@ export default function Documentation() {
         <Typography variant="body2" sx={{ mb: 1.5 }}>
           SDR research eats the day, so I built an agentic workflow that ingests leads, reconciles them against
           the CRM, researches and enriches them, builds context, and drafts the <b>best next outreach step</b> —
-          all in service of selling Northwind. A rep still reviews and sends; nothing goes out on its own. I gave
+          all in service of selling GTM Josh. A rep still reviews and sends; nothing goes out on its own. I gave
           it three surfaces:
         </Typography>
         <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
@@ -90,7 +90,7 @@ export default function Documentation() {
       <Section n="02" title="The pipeline, end to end">
         <Typography variant="body2" sx={{ mb: 1.5 }}>
           An <b>automated event</b> (or the nightly schedule) kicks off the workflow. I run the deterministic
-          steps in code and the AI steps live through n8n → Claude. It ends by writing the <b>AI Next Email</b>
+          steps in code and the AI steps through direct model calls. It ends by writing the <b>AI Next Email</b>
           field; the outreach tool builds the in-sequence email from that, and a rep sends.
         </Typography>
         <FlowRow>
@@ -158,9 +158,9 @@ export default function Documentation() {
       {/* 4. Four layers */}
       <Section n="04" title="Logic lives in git — the four layers">
         <Typography variant="body2" sx={{ mb: 1.5 }}>
-          I kept n8n deliberately dumb — it triggers and wires, nothing more. Every bit of knowledge, decision
-          logic, and prompt lives in the repo, mirroring the way Northwind itself is built. My rule of thumb:
-          adding an automation should mean building an n8n workflow, not hand-coding a new app each time.
+          The workflow code stays thin on purpose. Every bit of knowledge, decision logic, and prompt lives in
+          the repo, mirroring the way the context layer itself should work. My rule of thumb: the runtime should
+          execute the rules, not become the place where the rules secretly live.
         </Typography>
         <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
           {[
@@ -183,7 +183,7 @@ export default function Documentation() {
       {/* 5. Triggers */}
       <Section n="05" title="Triggers — automated events, not human clicks">
         <Typography variant="body2" sx={{ mb: 1.5 }}>
-          In production these fire from real webhooks and the n8n cron. I made the rep-activity triggers re-write
+          In production these fire from real webhooks and a scheduled job. I made the rep-activity triggers re-write
           the AI Next Email so the next sequence step always reflects the latest activity.
         </Typography>
         <Table size="small">
@@ -199,7 +199,7 @@ export default function Documentation() {
               ["Inbound form", "existing", "Marketing Engaged, MQL", "fast light-qualify draft"],
               ["Rep called / sent / connected", "existing", "engaged+", "refresh AI Context + a fresh follow-up email"],
               ["Clay found contacts", "new lead", "the batch", "ingest + hygiene the whole found set"],
-              ["Nightly batch (scheduled)", "scheduled", "n8n cron", "sweep stale-research accounts + new leads"],
+              ["Nightly batch (scheduled)", "scheduled", "cron job", "sweep stale-research accounts + new leads"],
             ].map((r, i) => (
               <TableRow key={i}>
                 <TableCell><b>{r[0]}</b></TableCell>
@@ -276,44 +276,43 @@ export default function Documentation() {
         <Typography variant="subtitle2" fontWeight={700} sx={{ mt: 2, mb: 0.5 }}>Prompt techniques I leaned on</Typography>
         <Box component="ul" sx={{ pl: 2.5, m: 0 }}>
           {[
-            <><b>System / User split</b> in every <Mono>PROMPT.md</Mono>, parsed by the app and sent to n8n verbatim.</>,
+            <><b>System / User split</b> in every <Mono>PROMPT.md</Mono>, parsed by the app and sent to the model runtime verbatim.</>,
             <><b>The grounding rule</b> — every personalized line must trace to a real signal or an approved pillar; sources go in a <Mono>citations</Mono> array, never inline, so the body stays clean and QA can verify it.</>,
             <><b>Relevance-slicing the draft</b> — instead of the whole knowledge base, the draft prompt injects only the contact’s persona row, the candidate pillars for that persona, and the trigger overlay (~60% smaller, sharper).</>,
-            <><b>Chaining in the orchestrator</b> — n8n appends 03’s output into 04, and 04 + 03 into 05, so each step builds on the last in one round-trip.</>,
+            <><b>Chaining in the runtime</b> — the app appends 03’s output into 04, and 04 + 03 into 05, so each step builds on the last.</>,
             <><b>Anti-hallucination on research</b> — sourced-only, ≤2 web searches, JSON-only, and “say ‘your warehouse’ if you can’t confirm the stack” (this is what stopped it inventing a Snowflake partnership).</>,
             <><b>Deterministic where I could</b> — persona and the persona-specific pain points come from a code map (<Mono>lib/persona.ts</Mono>), not an extra LLM call.</>,
           ].map((li, i) => <li key={i}><Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>{li}</Typography></li>)}
         </Box>
       </Section>
 
-      {/* 8. n8n as the runner */}
-      <Section n="08" title="n8n is the runner — the app holds no LLM SDK">
+      {/* 8. Runtime */}
+      <Section n="08" title="The app runtime is the runner">
         <Typography variant="body2" sx={{ mb: 1.5 }}>
-          Every Claude call goes through n8n Cloud; the Anthropic credential lives in n8n, not in my app. The app
-          just renders prompts from the repo, fires the webhook, and persists the result. Calling Claude from API
-          routes would have meant hand-building a web app per automation — the exact anti-pattern I wanted to
-          avoid — so I put the model behind n8n on purpose.
+          Every model call goes through a small helper in <Mono>lib/llm.ts</Mono>. The important part is that the
+          prompts and rules still live in git. The runtime just loads the right context, calls the model, chains
+          the outputs, and persists the result.
         </Typography>
         <FlowRow>
           <FlowBox kind="terminal" label="App (BFF)" sub="renders prompts · persists" w={140} />
           <Arrow />
-          <FlowBox kind="process" label="n8n webhook" sub="the runner" w={120} />
+          <FlowBox kind="process" label="Model runtime" sub="calls Anthropic" w={130} />
           <Arrow />
-          <FlowBox kind="event" label="Claude" sub="Opus / Sonnet + web search" w={150} />
+          <FlowBox kind="event" label="Claude" sub="Opus / Sonnet" w={130} />
           <Arrow />
-          <FlowBox kind="process" label="n8n responds" w={120} />
+          <FlowBox kind="process" label="Runtime chains" sub="03 → 04 → 05" w={130} />
           <Arrow />
           <FlowBox kind="terminal" label="App renders" w={120} />
         </FlowRow>
         <Box sx={{ mt: 2 }}>
           <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
             <Card variant="outlined" sx={{ flex: "1 1 320px" }}><CardContent sx={{ py: 1.5 }}>
-              <Typography variant="subtitle2" fontWeight={700}>Orchestration workflow <Chip size="small" color="success" label="executor" sx={{ height: 18, ml: 0.5 }} /></Typography>
-              <Typography variant="caption" color="text.secondary">17 nodes: event Webhook + nightly Schedule → Switch → the full pipeline + hygiene branch. The existing-contact path runs through it; n8n chains 03→04→05. Open its Executions to watch every node light up.</Typography>
+              <Typography variant="subtitle2" fontWeight={700}>Workflow visualizer <Chip size="small" color="success" label="executor" sx={{ height: 18, ml: 0.5 }} /></Typography>
+              <Typography variant="caption" color="text.secondary">Automated event → route → full pipeline + hygiene branch. The existing-contact path runs through it; the runtime chains 03→04→05 and the UI lights up each step.</Typography>
             </CardContent></Card>
             <Card variant="outlined" sx={{ flex: "1 1 320px" }}><CardContent sx={{ py: 1.5 }}>
-              <Typography variant="subtitle2" fontWeight={700}>Generation Runner</Typography>
-              <Typography variant="caption" color="text.secondary">A reusable Webhook → Claude → Respond. I use it per-call for hygiene adjudication and the Account Research web search.</Typography>
+              <Typography variant="subtitle2" fontWeight={700}>Generation helper</Typography>
+              <Typography variant="caption" color="text.secondary">A reusable direct Anthropic call. I use it for hygiene adjudication, account research, context generation, drafting, and QA.</Typography>
             </CardContent></Card>
           </Stack>
         </Box>
@@ -355,8 +354,8 @@ export default function Documentation() {
             <Typography variant="subtitle2" fontWeight={700}>Account Research (lazy)</Typography>
             <Typography variant="caption" color="text.secondary">
               I split it: <Mono>accountResearch</Mono> (deep, web-sourced, runs once if empty) vs{" "}
-              <Mono>accountAiContext</Mono> (refreshed every run). A research-empty account gets researched live via
-              n8n → Claude web search on its first run, then cached; a committed fallback covers a live failure.
+              <Mono>accountAiContext</Mono> (refreshed every run). A research-empty account gets researched on its
+              first run, then cached; a committed fallback covers a live failure.
             </Typography>
           </CardContent></Card>
         </Stack>
@@ -377,9 +376,9 @@ export default function Documentation() {
         <Table size="small">
           <TableBody>
             {[
-              ["n8n Cloud", "Orchestration / runner. Webhook + nightly cron; Claude runs here. Models the automation platform, not a per-automation app."],
+              ["Next API routes", "Workflow runner. Loads prompts, calls the model runtime, chains 03→04→05, writes the result, and streams progress to the visualizer."],
               ["Claude", "Opus 4.8 (draft), Sonnet 4.6 (context / QA / hygiene / research + web search). Best prose where it shows; strong reasoning everywhere else."],
-              ["Next.js + MUI + React Flow", "The UI (Visualizer + Try It + Analytics + this page). A thin BFF + orchestrator that holds the four layers, not LLM credentials."],
+              ["Next.js + MUI + React Flow", "The UI (Visualizer + Try It + Analytics + this page). A thin BFF + orchestrator that holds the four layers and calls the model runtime."],
               ["Postgres + Prisma (Railway)", "The CRM. Same engine dev & prod; I control the schema (status/source/merge, Run, HygieneEvent, opp next-step history, AI Next Email, account research)."],
               ["Provider-agnostic enrichment", "Mock CSV today, Clay / LinkedAPI tomorrow — same interface."],
             ].map((r, i) => (
@@ -401,7 +400,7 @@ export default function Documentation() {
         </Typography>
         <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
           <Chip color="success" variant="outlined" label="Phase 1 — Demo harness ✓" />
-          <Chip color="success" variant="outlined" label="Phase 2 — Live via n8n → Claude ✓" />
+          <Chip color="success" variant="outlined" label="Phase 2 — Live via direct model calls ✓" />
           <Chip color="success" variant="outlined" label="Phase 3 — Deployed to Railway ✓" />
         </Stack>
       </Section>
@@ -434,7 +433,7 @@ export default function Documentation() {
         <Box component="ul" sx={{ pl: 2.5, m: 0 }}>
           {[
             <>Flesh out the prompts further — <b>especially per individual trigger-case</b>. Each trigger (Gong call, opp next-step, rep follow-up, inbound) deserves its own tuned framing rather than sharing one drafting prompt.</>,
-            <>Build a <b>dedicated error path for the n8n workflow across each node</b>, so it's far easier to diagnose exactly when and why something broke instead of falling back silently.</>,
+            <>Build a <b>dedicated error path across each workflow step</b>, so it's far easier to diagnose exactly when and why something broke instead of falling back silently.</>,
             <>Token usage is higher than I'd like. I'd experiment with a <b>cheaper model (e.g. Haiku) for context generation and/or the web-search</b> step to see whether I can hit similar email quality at a lower cost.</>,
             <>Close the loop on outcomes: <b>integrate real email performance from the sequencing platform</b>, log which emails actually perform, and feed that back to shape the prompt system itself.</>,
           ].map((li, i) => <li key={i}><Typography variant="body2" color="text.secondary" sx={{ mb: 0.75 }}>{li}</Typography></li>)}
@@ -451,11 +450,11 @@ export default function Documentation() {
         <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mb: 1.5 }}>
           <Card variant="outlined" sx={{ flex: "1 1 300px" }}><CardContent sx={{ py: 1.5 }}>
             <Typography variant="subtitle2" fontWeight={700}>Phase 1 — the environment <Chip size="small" variant="outlined" label="~2 hrs" sx={{ height: 18, ml: 0.5 }} /></Typography>
-            <Typography variant="caption" color="text.secondary">Built the web app and most of the scaffolding for visualizing the n8n workflow — the tangible environment to demonstrate the flow in action.</Typography>
+            <Typography variant="caption" color="text.secondary">Built the web app and most of the scaffolding for visualizing the workflow — the tangible environment to demonstrate the flow in action.</Typography>
           </CardContent></Card>
           <Card variant="outlined" sx={{ flex: "1 1 300px" }}><CardContent sx={{ py: 1.5 }}>
             <Typography variant="subtitle2" fontWeight={700}>Phase 2 — the workflow <Chip size="small" variant="outlined" label="~2 hrs" sx={{ height: 18, ml: 0.5 }} /></Typography>
-            <Typography variant="caption" color="text.secondary">Building the actual n8n workflow, the four-layer prompts/skills, and testing it end to end.</Typography>
+            <Typography variant="caption" color="text.secondary">Building the actual workflow, the four-layer prompts/skills, and testing it end to end.</Typography>
           </CardContent></Card>
         </Stack>
         <Typography variant="body2" color="text.secondary">
@@ -473,8 +472,7 @@ export default function Documentation() {
           </Button>
         </Stack>
         <Typography variant="body2" color="text.secondary" sx={{ display: "block", mt: 1.5 }}>
-          My repo is private and the n8n workspace needs sign-in, but I&apos;m happy to share full access to both
-          on request — just email me at <b>ownfir@gmail.com</b> and I&apos;ll add you. Full detail lives in{" "}
+          Full detail lives in{" "}
           <Mono>README.md</Mono>, the four layers, <Mono>execution/*/PROMPT.md</Mono>, <Mono>orchestration/</Mono>, and the session logs.
         </Typography>
       </Section>

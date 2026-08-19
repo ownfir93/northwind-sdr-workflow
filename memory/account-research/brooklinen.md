@@ -16,7 +16,7 @@ a growing retail/wholesale presence.
 Likely a cloud warehouse (**Snowflake**) with **Klaviyo** for lifecycle and the major ad platforms for
 acquisition/retargeting. *(Inferred — confirm in discovery.)*
 
-## Northwind use case
+## GTM Josh use case
 Warehouse-native **lifecycle + suppression audiences**: replenishment, win-back, VIP, and
 high-AOV segments synced to Klaviyo + ads, plus suppression of recent purchasers/unsubscribes to cut
 wasted spend — without the lean team hand-building lists each campaign.

@@ -1,6 +1,6 @@
 contact_id,account_id,first_name,last_name,title,seniority,email,linkedin_url,persona,lifecycle_stage
-CON001,ACC001,Jess,Romero,,,jess.romero@northwindlog.com,,,MQL
-CON002,ACC001,Adam,Hale,"Manager, Digital",,adam.hale@northwindlog.com,https://linkedin.com/in/adamhale,,Marketing Engaged
+CON001,ACC001,Jess,Romero,,,jess.romero@cascadefreight.example,,,MQL
+CON002,ACC001,Adam,Hale,"Manager, Digital",,adam.hale@cascadefreight.example,https://linkedin.com/in/adamhale,,Marketing Engaged
 CON003,ACC002,Tobias,Lang,Ecommerce Lead,,tobias.lang@brightwave.com,,,Pipeline
 CON004,ACC002,Priya,Nair,,,priya.nair@brightwave.com,https://linkedin.com/in/priyanair,,Suspect
 CON005,ACC003,Marcus,Webb,Director,,marcus.webb@meridianhealth.org,https://linkedin.com/in/marcuswebb,,Pipeline

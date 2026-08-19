@@ -1,6 +1,6 @@
-# ICP — who Northwind sells to
+# ICP — who GTM Josh sells to
 
-Northwind is a composable CDP / data-activation platform: it activates data from the warehouse
+GTM Josh is a composable CDP / data-activation platform: it activates data from the warehouse
 (Snowflake, BigQuery, Databricks, Redshift) into 200+ operational tools — ads, CRM, marketing
 automation, sales engagement — via Reverse ETL, an Audience builder, and AI Decisioning. We sell the
 ability to *act on warehouse data without copying it into another silo*.

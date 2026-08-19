@@ -1,6 +1,6 @@
 // app/api/research/route.ts
 // Standalone Account Research trigger (also used by the nightly batch). POST { accountId } runs the
-// lazy research agent (n8n -> Claude + web search) if the account isn't researched yet.
+// lazy research agent if the account isn't researched yet.
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ensureAccountResearched } from "@/lib/research";

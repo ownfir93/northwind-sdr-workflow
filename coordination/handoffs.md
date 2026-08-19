@@ -1,6 +1,6 @@
 # Handoffs — step input/output contracts
 
-The contract each skill consumes and produces, so n8n (or the app orchestrator) can chain them and the QA
+The contract each skill consumes and produces, so the app orchestrator can chain them and the QA
 grader can verify. Shapes mirror the `api/run` payload. JSON-ish; nulls allowed (graceful degradation).
 
 ## 01-research → research object
