@@ -36,15 +36,12 @@ export default function NavBar() {
           sx={{ display: "flex", alignItems: "center", gap: 1.25, textDecoration: "none", color: "inherit", minWidth: 0 }}
         >
           <Box
-            sx={{
-              flex: "0 0 auto", width: 28, height: 28, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#fff", fontWeight: 900, fontSize: 15, lineHeight: 1,
-              background: "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)",
-              boxShadow: "0 2px 8px rgba(79,70,229,0.35)",
-            }}
-          >
-            H
-          </Box>
+            component="img"
+            src="/guides/crm-ai-context-layer/demo/icon.svg"
+            alt=""
+            aria-hidden="true"
+            sx={{ flex: "0 0 auto", width: 28, height: 28, display: "block" }}
+          />
           <Typography variant="subtitle1" fontWeight={800} noWrap sx={{ letterSpacing: "-0.01em" }}>
             AI Context Layer Demo
             <Box component="span" sx={{ color: "#64748b", fontWeight: 600, display: { xs: "none", sm: "inline" } }}>{"  —  GTM Josh scenario"}</Box>

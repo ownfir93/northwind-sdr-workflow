@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   title: "AI Context Layer Demo",
   description:
     "A runnable AI context layer demo: load rules, reconcile CRM data, build context, and draft a grounded next step.",
+  icons: {
+    icon: [{ url: "/guides/crm-ai-context-layer/demo/icon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
